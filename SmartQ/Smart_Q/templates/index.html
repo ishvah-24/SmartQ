@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartQ | Reception Queue Management</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="app-shell">
+
+    <!-- Left branding panel -->
+    <aside class="brand-panel">
+      <div class="brand-inner">
+        <img src="smartq-logo.jpg" alt="SmartQ Student Queue Management System" class="main-logo">
+        <div class="brand-copy">
+          <h1>Smart Queue.<br><span>Better Experience.</span></h1>
+          <p>SmartQ helps Richfield reception staff manage student queries efficiently and keep students informed.</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main application area -->
+    <section class="content-panel">
+
+      <!-- Mobile logo -->
+      <div class="mobile-logo">
+        <img src="smartq-logo.jpg" alt="SmartQ logo">
+      </div>
+
+      <!-- STAFF LOGIN -->
+      <section class="screen active" id="loginScreen">
+        <div class="heading">
+          <span class="eyebrow">RECEPTION STAFF</span>
+          <h2>Welcome back</h2>
+          <p>Sign in to access the SmartQ reception system.</p>
+        </div>
+
+        <form class="form" id="loginForm">
+          <label for="loginEmail">Email Address</label>
+          <input
+            id="loginEmail"
+            type="email"
+            placeholder="reception@richfield.ac.za"
+            required
+          >
+
+          <label for="loginPassword">Password</label>
+          <div class="password-box">
+            <input
+              id="loginPassword"
+              type="password"
+              placeholder="Enter your password"
+              required
+            >
+            <button type="button" class="show-btn" data-target="loginPassword">Show</button>
+          </div>
+
+          <div class="form-row">
+            <label class="remember">
+              <input type="checkbox">
+              <span>Remember me</span>
+            </label>
+            <button type="button" class="small-link" onclick="showMessage('Please contact your system administrator to reset your password.')">
+              Forgot password?
+            </button>
+          </div>
+
+          <button class="primary-btn" type="submit">
+            Sign In <span>→</span>
+          </button>
+        </form>
+
+        <p class="switch-text">
+          New receptionist?
+          <button class="link-button" onclick="showScreen('signupScreen')">Create an account</button>
+        </p>
+      </section>
+
+      <!-- STAFF SIGN UP -->
+      <section class="screen" id="signupScreen">
+        <div class="heading">
+          <span class="eyebrow">RECEPTION STAFF</span>
+          <h2>Create staff account</h2>
+          <p>Register a receptionist account for the SmartQ system.</p>
+        </div>
+
+        <form class="form" id="signupForm">
+          <label for="signupEmail">Email Address</label>
+          <input
+            id="signupEmail"
+            type="email"
+            placeholder="reception@richfield.ac.za"
+            required
+          >
+
+          <label for="signupPassword">Password</label>
+          <div class="password-box">
+            <input
+              id="signupPassword"
+              type="password"
+              placeholder="Create a password"
+              minlength="8"
+              required
+            >
+            <button type="button" class="show-btn" data-target="signupPassword">Show</button>
+          </div>
+
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="password-box">
+            <input
+              id="confirmPassword"
+              type="password"
+              placeholder="Confirm your password"
+              minlength="8"
+              required
+            >
+            <button type="button" class="show-btn" data-target="confirmPassword">Show</button>
+          </div>
+
+          <button class="primary-btn" type="submit">
+            Create Staff Account <span>→</span>
+          </button>
+        </form>
+
+        <p class="switch-text">
+          Already have an account?
+          <button class="link-button" onclick="showScreen('loginScreen')">Sign in</button>
+        </p>
+      </section>
+
+      <!-- STUDENT QUEUE ENTRY -->
+      <section class="screen" id="studentScreen">
+        <div class="heading">
+          <span class="eyebrow">STUDENT QUEUE</span>
+          <h2>Join the queue</h2>
+          <p>Enter your details and tell reception what you need assistance with.</p>
+        </div>
+
+        <form class="form" id="studentForm">
+          <label for="studentNumber">Student Number</label>
+          <input
+            id="studentNumber"
+            type="text"
+            inputmode="numeric"
+            placeholder="e.g. 402412389"
+            required
+          >
+		  
+		  <label for="studentName">Name</label> 
+		  <input 
+		  id="studentName" 
+		  type="text" 
+		  placeholder="e.g. Hanan" 
+		  required > 
+		  
+		  <label for="studentSurname">Surname</label> 
+		  <input 
+		  id="studentSurname" 
+		  type="text" 
+		  placeholder="e.g. Ramanna" 
+		  required >
+
+          <label for="studentPhone">Phone Number</label>
+          <input
+            id="studentPhone"
+            type="tel"
+            placeholder="e.g. 082 123 4567"
+            required
+          >
+
+          <label for="studentQuery">What do you need help with?</label>
+          <select id="studentQuery" required>
+            <option value="" selected disabled>Select your query</option>
+            <option value="Access Card">Access Card</option>
+            <option value="Pay Fees">Pay Fees</option>
+			<option value="Registration">Registration</option>
+            <option value="Other">Other</option>
+          </select>
+
+          <button class="primary-btn" type="submit">
+            Submit Query <span>→</span>
+          </button>
+        </form>
+
+        <div class="info-card">
+          <div class="info-icon">i</div>
+          <div>
+            <strong>What happens next?</strong>
+            <p>
+              Your query is sent to reception. When it is your turn,
+              SmartQ can send an automated notification asking you to come
+              to reception.
+            </p>
+          </div>
+        </div>
+      </section>
+	  
+	  <!-- TICKET CONFIRMATION -->
+		<section class="screen" id="ticketScreen">
+		  <div class="ticket-heading">
+			<span class="eyebrow">QUEUE CONFIRMATION</span>
+			<h2>You're in the queue!</h2>
+			<p>Your request has been successfully submitted to reception.</p>
+		  </div>
+
+		  <div class="ticket-card">
+
+			<div class="ticket-label">
+			  YOUR TICKET NUMBER
+			</div>
+
+			<div class="ticket-number" id="ticketNumber">
+			  A-024
+			</div>
+
+			<div class="ticket-status">
+			  <span class="status-dot"></span>
+			  You are waiting for assistance
+			</div>
+
+			<div class="ticket-divider"></div>
+
+			<div class="ticket-details">
+			  <div class="ticket-detail">
+				<span>Student</span>
+				<strong id="ticketStudentName">Hanan Ramanna</strong>
+			  </div>
+
+			  <div class="ticket-detail">
+				<span>Query</span>
+				<strong id="ticketQueryType">Access Card</strong>
+			  </div>
+			</div>
+
+		  </div>
+
+		  <div class="info-card ticket-info">
+			<div class="info-icon">i</div>
+			<div>
+			  <strong>Please keep your ticket number</strong>
+			  <p>
+				Keep an eye on the reception display. You will be notified
+				when it is your turn to receive assistance.
+			  </p>
+			</div>
+		  </div>
+
+		  <button class="primary-btn ticket-button" onclick="document.getElementById('studentForm').reset(); showScreen('studentScreen')">
+			Return to Queue <span>↻</span>
+		  </button>
+		</section>
+
+      <!-- DEMO NAVIGATION -->
+      <div class="demo-nav">
+        <span>Staff Side:</span>
+        <button onclick="showScreen('loginScreen')">Staff Login</button>
+        <button onclick="showScreen('signupScreen')">Staff Sign Up</button>
+        <button onclick="showScreen('studentScreen')">Student Queue</button>
+      </div>
+
+      <p id="message" class="message" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+/* analytics.css — simple CSS bar charts on top of dashboard.css shell */
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.chart-card {
+  padding: 20px 22px 24px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(7, 26, 51, .05);
+}
+
+.chart-card.wide {
+  grid-column: 1 / -1;
+}
+
+.chart-card h3 {
+  margin: 0 0 18px;
+  color: var(--navy);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Vertical bar chart (query / status breakdown) */
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  height: 190px;
+  padding-top: 10px;
+}
+
+.bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+  height: 100%;
+}
+
+.bar-item .bar-count {
+  margin-bottom: 6px;
+  color: var(--navy);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.bar-item .bar-fill {
+  width: 100%;
+  max-width: 46px;
+  border-radius: 8px 8px 3px 3px;
+  background: linear-gradient(180deg, var(--blue), var(--blue-dark));
+  transition: height .3s ease;
+}
+
+.bar-item .bar-label {
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Horizontal bar chart (tickets by hour) */
+
+.bar-chart.horizontal {
+  flex-direction: column;
+  align-items: stretch;
+  height: auto;
+  gap: 10px;
+}
+
+.hbar-row {
+  display: grid;
+  grid-template-columns: 56px 1fr 30px;
+  align-items: center;
+  gap: 10px;
+}
+
+.hbar-label {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.hbar-track {
+  height: 12px;
+  border-radius: 999px;
+  background: #eef4fb;
+  overflow: hidden;
+}
+
+.hbar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--blue), #5db1ff);
+}
+
+.hbar-count {
+  color: var(--navy);
+  font-size: 11.5px;
+  font-weight: 800;
+  text-align: right;
+}
+
+@media (max-width: 900px) {
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+}

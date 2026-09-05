@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartQ | Analytics</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="analytics.css">
+</head>
+<body class="staff-body">
+
+  <div class="staff-shell">
+
+    <!-- Sidebar -->
+    <aside class="staff-sidebar">
+      <div class="staff-brand">
+        <img src="smartq-logo.jpg" alt="SmartQ logo" class="staff-logo">
+        <span>SmartQ</span>
+      </div>
+
+      <nav class="staff-nav">
+        <a href="dashboard.html" class="staff-nav-link">
+          <span class="nav-dot"></span> Dashboard
+        </a>
+        <a href="analytics.html" class="staff-nav-link active">
+          <span class="nav-dot"></span> Analytics
+        </a>
+      </nav>
+
+      <button class="signout-btn" id="signOutBtn">
+        Sign Out <span>⏻</span>
+      </button>
+    </aside>
+
+    <!-- Main content -->
+    <main class="staff-main">
+
+      <header class="staff-header">
+        <div>
+          <span class="eyebrow">RECEPTION</span>
+          <h1>Queue Analytics</h1>
+          <p>Trends from today's sample data. This is a concept view — figures are illustrative.</p>
+        </div>
+      </header>
+
+      <!-- Summary cards -->
+      <section class="stat-row" id="statRow">
+        <!-- filled by analytics.js -->
+      </section>
+
+      <!-- Charts -->
+      <section class="chart-grid">
+
+        <div class="chart-card">
+          <h3>Queries by Type</h3>
+          <div class="bar-chart" id="queryChart"></div>
+        </div>
+
+        <div class="chart-card">
+          <h3>Tickets by Status</h3>
+          <div class="bar-chart" id="statusChart"></div>
+        </div>
+
+        <div class="chart-card wide">
+          <h3>Tickets Submitted by Hour</h3>
+          <div class="bar-chart horizontal" id="hourChart"></div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <script src="dummy-data.js"></script>
+  <script src="analytics.js"></script>
+</body>
+</html>

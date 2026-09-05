@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartQ | Reception Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="staff-body">
+
+  <div class="staff-shell">
+
+    <!-- Sidebar -->
+    <aside class="staff-sidebar">
+      <div class="staff-brand">
+        <img src="smartq-logo.jpg" alt="SmartQ logo" class="staff-logo">
+        <span>SmartQ</span>
+      </div>
+
+      <nav class="staff-nav">
+        <a href="dashboard.html" class="staff-nav-link active">
+          <span class="nav-dot"></span> Dashboard
+        </a>
+        <a href="analytics.html" class="staff-nav-link">
+          <span class="nav-dot"></span> Analytics
+        </a>
+      </nav>
+
+      <button class="signout-btn" id="signOutBtn">
+        Sign Out <span>⏻</span>
+      </button>
+    </aside>
+
+    <!-- Main content -->
+    <main class="staff-main">
+
+      <header class="staff-header">
+        <div>
+          <span class="eyebrow">RECEPTION</span>
+          <h1>Queue Dashboard</h1>
+          <p>Live overview of student queries. This is a concept view using sample data.</p>
+        </div>
+      </header>
+
+      <!-- Summary cards -->
+      <section class="stat-row" id="statRow">
+        <!-- filled by dashboard.js -->
+      </section>
+
+      <!-- Filter bar -->
+      <section class="filter-bar">
+        <div class="filter-group">
+          <label for="statusFilter">Status</label>
+          <select id="statusFilter">
+            <option value="all">All statuses</option>
+            <option value="waiting">Waiting</option>
+            <option value="in-progress">In Progress</option>
+            <option value="served">Served</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="queryFilter">Query type</label>
+          <select id="queryFilter">
+            <option value="all">All queries</option>
+            <option value="Access Card">Access Card</option>
+            <option value="Pay Fees">Pay Fees</option>
+            <option value="Registration">Registration</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="filter-group search-group">
+          <label for="searchInput">Search</label>
+          <input id="searchInput" type="text" placeholder="Search name or ticket number">
+        </div>
+      </section>
+
+      <!-- Ticket table -->
+      <section class="table-card">
+        <table class="ticket-table">
+          <thead>
+            <tr>
+              <th>Ticket #</th>
+              <th>Name</th>
+              <th>Student Number</th>
+              <th>Query</th>
+              <th>Status</th>
+              <th>Submitted</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="ticketTableBody">
+            <!-- filled by dashboard.js -->
+          </tbody>
+        </table>
+
+        <p class="empty-state" id="emptyState" hidden>
+          No tickets match your filters.
+        </p>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="dummy-data.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
