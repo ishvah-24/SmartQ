@@ -1,6 +1,5 @@
 # This files purpose is to handle all queue logic that a staff and student would have to use
 
-
 from django.utils import timezone # needed for datetime functionality in queue ticketing
 from django.db import transaction
 
@@ -60,10 +59,16 @@ def get_position(ticket):
 
 def get_next_ticket():
     next_ticket = Ticket.objects.filter(status="Waiting").order_by("date_created").first()
+    return next_ticket
 
 def mark_served(ticket):
-    pass
+    ticket = QueueTicket.objects.get()
     
+    ticket.update(queue_status="Completed")
+    ticket.save()
+    
+    return ticket
+        
 def skip_ticket(ticket):
     pass
 

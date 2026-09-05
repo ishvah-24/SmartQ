@@ -1,10 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmartQ | Reception Queue Management</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="{% static 'Smart_Q/css/style.css' %}">
 </head>
 <body>
 
@@ -13,7 +14,7 @@
     <!-- Left branding panel -->
     <aside class="brand-panel">
       <div class="brand-inner">
-        <img src="smartq-logo.jpg" alt="SmartQ Student Queue Management System" class="main-logo">
+        <img src="{% static 'Smart_Q/images/smartq-logo.jpg' %}" alt="SmartQ Student Queue Management System" class="main-logo">
         <div class="brand-copy">
           <h1>Smart Queue.<br><span>Better Experience.</span></h1>
           <p>SmartQ helps Richfield reception staff manage student queries efficiently and keep students informed.</p>
@@ -26,7 +27,7 @@
 
       <!-- Mobile logo -->
       <div class="mobile-logo">
-        <img src="smartq-logo.jpg" alt="SmartQ logo">
+        <img src="{% static 'Smart_Q/images/smartq-logo.jpg' %}" alt="SmartQ logo">
       </div>
 
       <!-- STAFF LOGIN -->
@@ -264,6 +265,6 @@
     </section>
   </main>
 
-  <script src="script.js"></script>
+  <script src="{% static 'Smart_Q/js/script.js' %}"></script>
 </body>
 </html>
