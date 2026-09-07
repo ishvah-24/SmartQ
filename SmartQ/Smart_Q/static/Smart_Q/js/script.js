@@ -59,7 +59,7 @@ document.getElementById("signupForm").addEventListener("submit", event => {
 
 /* Student queue submission demo */
 let nextTicketNumber = 24; // demo counter only — a real system would assign this server-side
-
+/*
 document.getElementById("studentForm").addEventListener("submit", event => {
   event.preventDefault();
 
@@ -78,6 +78,8 @@ document.getElementById("studentForm").addEventListener("submit", event => {
     it to determine when the student should be notified.
   */
 
+
+/*    
   const ticketNumber = `A-0${nextTicketNumber++}`;
 
   document.getElementById("ticketNumber").textContent = ticketNumber;
@@ -95,4 +97,5 @@ document.getElementById("studentForm").addEventListener("submit", event => {
     query,
     submittedAt: new Date().toISOString()
   });
-});
+}); 
+*/

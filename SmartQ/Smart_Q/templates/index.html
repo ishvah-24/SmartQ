@@ -139,10 +139,12 @@
           <p>Enter your details and tell reception what you need assistance with.</p>
         </div>
 
-        <form class="form" id="studentForm">
+        <form class="form" id="studentForm" method="POST" action="{% url 'student_create' %}">
+          {% csrf_token %}
           <label for="studentNumber">Student Number</label>
           <input
             id="studentNumber"
+            name="student_number"
             type="text"
             inputmode="numeric"
             placeholder="e.g. 402412389"
@@ -152,6 +154,7 @@
 		  <label for="studentName">Name</label> 
 		  <input 
 		  id="studentName" 
+      name="first_name"
 		  type="text" 
 		  placeholder="e.g. Hanan" 
 		  required > 
@@ -159,6 +162,7 @@
 		  <label for="studentSurname">Surname</label> 
 		  <input 
 		  id="studentSurname" 
+      name="last_name"
 		  type="text" 
 		  placeholder="e.g. Ramanna" 
 		  required >
@@ -166,6 +170,7 @@
           <label for="studentPhone">Phone Number</label>
           <input
             id="studentPhone"
+            name="phone_number"
             type="tel"
             placeholder="e.g. 082 123 4567"
             required
