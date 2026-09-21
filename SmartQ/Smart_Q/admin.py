@@ -14,5 +14,3 @@ admin.site.register(Notification)
 # tickets and notifications) 
 # it is accessible through using a superuser 
 # PURELY FOR TESTING PURPOSES
-
-hello
