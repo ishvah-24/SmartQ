@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 # Create your models here.
 class Student(models.Model):
     student_id = models.AutoField(primary_key=True)
@@ -15,10 +15,10 @@ class Staff(models.Model):
     staff_id = models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    department = models.CharField(max_length=50, null=True)
+    staff_email = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
-        return (f"{self.first_name} - {self.last_name} - {self.department}")
+        return f"{self.first_name} - {self.last_name}"
 
 class ServiceCategory(models.Model):
     category_id = models.AutoField(primary_key=True)
@@ -26,7 +26,7 @@ class ServiceCategory(models.Model):
     description = models.TextField(null=True)
 
     def __str__(self):
-        return (f"{self.category_id} - {self.description}")
+        return f"{self.category_id} - {self.description}"
 
 class Counter(models.Model):
     counter_id = models.AutoField(primary_key=True)
@@ -60,12 +60,12 @@ class QueueTicket(models.Model):
     
     queue_status = models.CharField(max_length=50, 
                                     choices=QUEUE_STATUS, 
-                                    default="High Priority"
+                                    default="Waiting"
                                     )
     
     priority_level = models.CharField(max_length=50, 
                                       choices=PRIORITY_LEVEL, 
-                                      default="No show"
+                                      default="Normal Priority"
                                       )
     def __str__(self):
         return (f"{self.ticket_id} - {self.student} - {self.category.description} - {self.staff} - {self.queue_status}")

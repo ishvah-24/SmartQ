@@ -19,21 +19,31 @@ def student_create(request):
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         phone_number = request.POST.get('phone_number')
+        query = request.POST.get('purpose')
         
-        Student.objects.create(
+        student = Student.objects.create(
             student_number = student_number, 
             first_name = first_name, 
             last_name = last_name, 
             phone_number = phone_number
         )
-                
-        print(student_number)
-        print(first_name)
-        print(last_name)
-        print(phone_number)
-        #print(query)
         
-        return render(request, "Smart_Q/index.html")
+        category = ServiceCategory.objects.create(
+            category_name = query                             
+        )
+        
+        ticket = QueueTicket.objects.create(
+            student=student, 
+            category=category, 
+            queue_status = "Waiting", 
+            priority_level = "Normal Priority"
+        )
+        
+        print(student, "\n", category, "\n", ticket)
+        
+        return render(request, "index.html")
+    
+    return render(request, "index.html")
 
 def staff_create(request):
     if request.method == 'POST':
