@@ -31,7 +31,7 @@
       </div>
 
       <!-- STAFF LOGIN -->
-      <section class="screen active" id="loginScreen">
+      <section class="screen {% if not ticket %}active{% endif %}" id="loginScreen">
         <div class="heading">
           <span class="eyebrow">RECEPTION STAFF</span>
           <h2>Welcome back</h2>
@@ -43,6 +43,7 @@
           <input
             id="loginEmail"
             type="email"
+            name="loginEmail"
             placeholder="reception@richfield.ac.za"
             required
           >
@@ -52,6 +53,7 @@
             <input
               id="loginPassword"
               type="password"
+              name="loginPassword"
               placeholder="Enter your password"
               required
             >
@@ -91,6 +93,7 @@
           <label for="signupEmail">Email Address</label>
           <input
             id="signupEmail"
+            name="signUpEmail"
             type="email"
             placeholder="reception@richfield.ac.za"
             required
@@ -101,6 +104,7 @@
             <input
               id="signupPassword"
               type="password"
+              name="signUpPassword"
               placeholder="Create a password"
               minlength="8"
               required
@@ -112,6 +116,7 @@
           <div class="password-box">
             <input
               id="confirmPassword"
+              name="signUpPasswordConfirm"
               type="password"
               placeholder="Confirm your password"
               minlength="8"
@@ -205,7 +210,7 @@
       </section>
 	  
 	  <!-- TICKET CONFIRMATION -->
-		<section class="screen" id="ticketScreen">
+    <section class="screen {% if ticket %}active{% endif %}" id="ticketScreen">
 		  <div class="ticket-heading">
 			<span class="eyebrow">QUEUE CONFIRMATION</span>
 			<h2>You're in the queue!</h2>
@@ -218,9 +223,11 @@
 			  YOUR TICKET NUMBER
 			</div>
 
-			<div class="ticket-number" id="ticketNumber">
-			  A-024
-			</div>
+      <div class="ticket-number" id="ticketNumber">
+          {% if ticket %}
+              A-{{ ticket.ticket_id|stringformat:"03d" }}
+          {% endif %}
+      </div>
 
 			<div class="ticket-status">
 			  <span class="status-dot"></span>
@@ -232,12 +239,20 @@
 			<div class="ticket-details">
 			  <div class="ticket-detail">
 				<span>Student</span>
-				<strong id="ticketStudentName">Hanan Ramanna</strong>
+          <strong id="ticketStudentName">
+              {% if ticket %}
+                  {{ ticket.student.first_name }} {{ ticket.student.last_name }}
+              {% endif %}
+          </strong>
 			  </div>
 
 			  <div class="ticket-detail">
 				<span>Query</span>
-				<strong id="ticketQueryType">Access Card</strong>
+          <strong id="ticketQueryType">
+              {% if ticket %}
+                  {{ ticket.category.category_name }}
+              {% endif %}
+          </strong>
 			  </div>
 			</div>
 

@@ -41,21 +41,33 @@ def student_create(request):
         
         print(student, "\n", category, "\n", ticket)
         
-        return render(request, "index.html")
+#       return render(request, "index.html")
+        return render(request, "index.html", {"ticket": ticket})
+
     
-    return render(request, "index.html")
+    return render(request, "index.html", {"ticket": ticket})
+
 
 def staff_create(request):
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-        department = request.POST.get('department3')
+        #department = request.POST.get('department')
         
-        Staff.objects.create(
-            first_name = first_name, 
-            last_name = last_name, 
-            department = department
-        )
+        email = request.Post.get(signUpEmail)
+        password = request.POST.get('signupPassword')
+        password_confirm = request.POST.get('signUpPasswordConfirm')
+        
+        if(password != password_confirm):
+            print("Passwords do not match, please try again.")
+        else:        
+            staff = Staff.objects.create(
+                first_name = first_name, 
+                last_name = last_name,
+                email = staff_email
+            )
+            
+            print(staff)
         
         
 
