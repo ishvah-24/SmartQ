@@ -44,7 +44,6 @@ def student_create(request):
 #       return render(request, "index.html")
         return render(request, "index.html", {"ticket": ticket})
 
-    
     return render(request, "index.html", {"ticket": ticket})
 
 
@@ -52,8 +51,6 @@ def staff_create(request):
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-        #department = request.POST.get('department')
-        
         email = request.Post.get(signUpEmail)
         password = request.POST.get('signupPassword')
         password_confirm = request.POST.get('signUpPasswordConfirm')
@@ -66,8 +63,11 @@ def staff_create(request):
                 last_name = last_name,
                 email = staff_email
             )
-            
+            return render(request, "index.html")
+                        
             print(staff)
+            
+        return render(request, "index.html")
         
         
 
