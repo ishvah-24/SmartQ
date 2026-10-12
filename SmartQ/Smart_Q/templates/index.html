@@ -30,56 +30,63 @@
         <img src="{% static 'Smart_Q/images/smartq-logo.jpg' %}" alt="SmartQ logo">
       </div>
 
-      <!-- STAFF LOGIN -->
-      <section class="screen {% if not ticket %}active{% endif %}" id="loginScreen">
-        <div class="heading">
-          <span class="eyebrow">RECEPTION STAFF</span>
-          <h2>Welcome back</h2>
-          <p>Sign in to access the SmartQ reception system.</p>
-        </div>
+    
+<!-- STAFF LOGIN -->
+<section class="screen {% if not ticket %}active{% endif %}" id="loginScreen">
+    <div class="heading">
+        <span class="eyebrow">RECEPTION STAFF</span>
+        <h2>Welcome back</h2>
+        <p>Sign in to access the SmartQ reception system.</p>
+    </div>
 
-        <form class="form" id="loginForm">
-          <label for="loginEmail">Email Address</label>
-          <input
+    <form class="form"
+          id="loginForm"
+          method="POST"
+          action="{% url 'staff_signin' %}">
+
+        {% csrf_token %}
+
+        <label for="loginEmail">Email Address</label>
+        <input
             id="loginEmail"
             type="email"
             name="loginEmail"
             placeholder="reception@richfield.ac.za"
             required
-          >
+        >
 
-          <label for="loginPassword">Password</label>
-          <div class="password-box">
+        <label for="loginPassword">Password</label>
+        <div class="password-box">
             <input
-              id="loginPassword"
-              type="password"
-              name="loginPassword"
-              placeholder="Enter your password"
-              required
+                id="loginPassword"
+                type="password"
+                name="loginPassword"
+                placeholder="Enter your password"
+                required
             >
             <button type="button" class="show-btn" data-target="loginPassword">Show</button>
-          </div>
+        </div>
 
-          <div class="form-row">
+        <div class="form-row">
             <label class="remember">
-              <input type="checkbox">
-              <span>Remember me</span>
+                <input type="checkbox">
+                <span>Remember me</span>
             </label>
             <button type="button" class="small-link" onclick="showMessage('Please contact your system administrator to reset your password.')">
-              Forgot password?
+                Forgot password?
             </button>
-          </div>
+        </div>
 
-          <button class="primary-btn" type="submit">
+        <button class="primary-btn" type="submit">
             Sign In <span>→</span>
-          </button>
-        </form>
+        </button>
+    </form>
 
-        <p class="switch-text">
-          New receptionist?
-          <button class="link-button" onclick="showScreen('signupScreen')">Create an account</button>
-        </p>
-      </section>
+    <p class="switch-text">
+        New receptionist?
+        <button class="link-button" onclick="showScreen('signupScreen')">Create an account</button>
+    </p>
+</section>
 
       <!-- STAFF SIGN UP -->
       <section class="screen" id="signupScreen">
@@ -89,8 +96,13 @@
           <p>Register a receptionist account for the SmartQ system.</p>
         </div>
 
-        <form class="form" id="signupForm">
+        <form class="form" 
+        id="signupForm" 
+        method="POST" 
+        action="{% url 'staff_create'%}">
           
+        {% csrf_token %}
+
           <label for="first_name">First Name</label>
           <input
             id="first_name"
@@ -112,7 +124,7 @@
 
           <label for="signupEmail">Email Address</label>
           <input
-            id="signupEmail"
+            id="signUpEmail"
             name="signUpEmail"
             type="email"
             placeholder="reception@richfield.ac.za"
@@ -122,7 +134,7 @@
           <label for="signupPassword">Password</label>
           <div class="password-box">
             <input
-              id="signupPassword"
+              id="signUpPassword"
               type="password"
               name="signUpPassword"
               placeholder="Create a password"

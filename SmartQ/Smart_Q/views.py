@@ -1,10 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import *
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
 
 # Create your views here.
 def index(request):
     return render(request, "index.html")
 
+@login_required(login_url='index')
 def dashboard(request):
     return render(request, "dashboard.html")
 
@@ -46,28 +49,38 @@ def student_create(request):
 
     return render(request, "index.html", {"ticket": ticket})
 
-
 def staff_create(request):
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-        email = request.Post.get(signUpEmail)
-        password = request.POST.get('signupPassword')
-        password_confirm = request.POST.get('signUpPasswordConfirm')
-        
-        if(password != password_confirm):
-            print("Passwords do not match, please try again.")
-        else:        
-            staff = Staff.objects.create(
-                first_name = first_name, 
-                last_name = last_name,
-                email = staff_email
-            )
-            return render(request, "index.html")
-                        
-            print(staff)
-            
+        staff_email = request.POST.get('signUpEmail')
+
+        staff = Staff.objects.create(
+            first_name=first_name,
+            last_name=last_name,
+            staff_email=staff_email
+        )
+
+        print(staff)
+
         return render(request, "index.html")
+
+    return render(request, "index.html")
+
+def staff_signin(request):
+    if request.method == 'POST':
+        email = request.POST.get('loginEmail')
+        password = request.POST.get('loginPassword')
+
+        user = authenticate(request, username=email, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('dashboard')
+        else:
+            print("Invalid email or password")
+
+    return render(request, "index.html")
         
         
 
