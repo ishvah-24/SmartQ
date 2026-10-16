@@ -82,6 +82,43 @@ def staff_signin(request):
 
     return render(request, "index.html")
         
+
+@login_required(login_url='index')
+def dashboard(request):
+
+    queue_tickets = QueueTicket.objects.select_related(
+        'student', 'category'
+    ).order_by('-ticket_id')
+
+    status_mapping = {
+        'Waiting': 'waiting',
+        'Called': 'in-progress',
+        'In service': 'in-progress',
+        'Completed': 'served',
+        'No show': 'no-show',
+    }
+
+    tickets_data = []
+
+    for ticket in queue_tickets:
+        tickets_data.append({
+            'ticketNumber': f'A-{ticket.ticket_id:03d}',
+            'name': (
+                f'{ticket.student.first_name} '
+                f'{ticket.student.last_name}'
+            ),
+            'studentNumber': str(ticket.student.student_number),
+            'phone': ticket.student.phone_number,
+            'query': ticket.category.category_name,
+            'status': status_mapping.get(
+                ticket.queue_status, 'waiting'
+            ),
+            'submittedAt': ticket.date_created.isoformat(),
+        })
+
+    return render(request, 'dashboard.html', {
+        'tickets_data': tickets_data
+    })
         
 
         

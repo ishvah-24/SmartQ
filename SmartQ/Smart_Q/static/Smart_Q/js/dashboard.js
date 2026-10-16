@@ -5,7 +5,9 @@
   resets any status changes made here.
 */
 
-let tickets = getTickets().slice();
+let tickets = JSON.parse(
+    document.getElementById("ticketData").textContent
+);
 
 const statRow = document.getElementById("statRow");
 const tableBody = document.getElementById("ticketTableBody");
@@ -17,24 +19,34 @@ const searchInput = document.getElementById("searchInput");
 const STATUS_LABELS = {
   waiting: "Waiting",
   "in-progress": "In Progress",
-  served: "Served"
+  served: "Served", 
+  "no-show": "No Show"
 };
 
 const NEXT_STATUS = {
   waiting: "in-progress",
   "in-progress": "served",
-  served: "served"
+  served: "served", 
+  "no-show": "no-Show"
 };
 
 const ACTION_LABELS = {
   waiting: "Start Helping",
   "in-progress": "Mark Served",
-  served: "Served"
+  served: "Served", 
+  "no-show": "No Show"
 };
 
 function formatTime(iso) {
-  const date = new Date(iso);
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  if(!iso) return "-";
+
+  const pats = iso.split("-");
+
+  if(parseInt.length === 3){
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+
+    return iso;
+  }
 }
 
 function renderStats() {
@@ -105,8 +117,10 @@ function renderTable() {
         <button
           class="row-action"
           data-ticket="${t.ticketNumber}"
-          ${t.status === "served" ? "disabled" : ""}
+          ${["served", "no-show"].includes(t.status) ? "disabled" : ""}
         >
+  ${ACTION_LABELS[t.status]}
+</button>
           ${ACTION_LABELS[t.status]}
         </button>
       </td>

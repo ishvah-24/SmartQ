@@ -106,7 +106,9 @@
     </main>
   </div>
 
-  <script src="{% static 'Smart_Q/js/dummy-data.js' %}"></script>
-  <script src="{% static 'Smart_Q/js/dashboard.js' %}"></script>
+{{ tickets_data|json_script:"ticketData" }}
+
+<script src="{% static 'Smart_Q/js/dashboard.js' %}"></script>
+
 </body>
 </html>
