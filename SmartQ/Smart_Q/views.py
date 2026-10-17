@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login
 import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.utils import timezone
 
 # Create your views here.
 def index(request):
@@ -42,7 +43,9 @@ def student_create(request):
             student=student, 
             category=category, 
             queue_status = "Waiting", 
-            priority_level = "Normal Priority"
+            priority_level = "Normal Priority", 
+            joined_time=timezone.now()
+
         )
         
         print(student, "\n", category, "\n", ticket)
@@ -50,7 +53,7 @@ def student_create(request):
 #       return render(request, "index.html")
         return render(request, "index.html", {"ticket": ticket})
 
-    return render(request, "index.html", {"ticket": ticket})
+    return render(request, "index.html")
 
 def staff_create(request):
     if request.method == 'POST':
@@ -104,6 +107,17 @@ def dashboard(request):
     tickets_data = []
 
     for ticket in queue_tickets:
+        waiting_minutes=None
+        
+        if ticket.joined_time and ticket.called_time:
+            waiting_seconds = (
+                ticket.called_time - ticket.joined_time
+            ).total_seconds()
+            
+            waiting_minutes = max(0, round(waiting_seconds / 60))
+            print(f"Ticket {ticket.ticket_id}: Waiting time = {waiting_minutes} minutes")
+            
+        
         tickets_data.append({
         'id': ticket.ticket_id,
         'ticketNumber': f'A-{ticket.ticket_id:03d}',
@@ -118,6 +132,7 @@ def dashboard(request):
             ticket.queue_status, 'waiting'
         ),
         'submittedAt': ticket.date_created.isoformat(),
+        'waitingMinutes': waiting_minutes,
     })
 
     return render(request, 'dashboard.html', {
@@ -147,9 +162,16 @@ def update_ticket_status(request):
                 'error': 'This ticket cannot be advanced.'
             }, status=400)
 
-        ticket.queue_status = status_transitions[ticket.queue_status]
+        previous_status = ticket.queue_status
+        
+        ticket.queue_status = status_transitions[previous_status]
+        
+        if previous_status == 'Waiting':
+            ticket.called_time=timezone.now()
+            ticket.save(update_fields=['queue_status', 'called_time'])
+        else:
+            ticket.save(update_fields=['queue_status'])
 
-        ticket.save(update_fields=['queue_status'])
 
         return JsonResponse({
             'success': True,

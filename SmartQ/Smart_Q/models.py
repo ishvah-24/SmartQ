@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+
+
 # Create your models here.
 class Student(models.Model):
     student_id = models.AutoField(primary_key=True)
@@ -56,6 +58,7 @@ class QueueTicket(models.Model):
     staff = models.ForeignKey(Staff, on_delete=models.CASCADE, null=True)
     counter = models.ForeignKey(Counter, on_delete=models.CASCADE, null=True)
     date_created = models.DateField(auto_now_add=True)
+    joined_time = models.DateTimeField(null=True, blank=True)
     called_time = models.DateTimeField(null=True, blank=True)
     
     queue_status = models.CharField(max_length=50, 
