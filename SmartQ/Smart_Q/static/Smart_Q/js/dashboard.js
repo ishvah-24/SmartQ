@@ -17,24 +17,19 @@ const queryFilter = document.getElementById("queryFilter");
 const searchInput = document.getElementById("searchInput");
 
 const STATUS_LABELS = {
-  waiting: "Waiting",
-  "in-progress": "In Progress",
-  served: "Served", 
-  "no-show": "No Show"
-};
-
-const NEXT_STATUS = {
-  waiting: "in-progress",
-  "in-progress": "served",
-  served: "served", 
-  "no-show": "no-Show"
+    waiting: "Waiting",
+    called: "Called",
+    "in-progress": "In Progress",
+    served: "Served",
+    "no-show": "No Show"
 };
 
 const ACTION_LABELS = {
-  waiting: "Start Helping",
-  "in-progress": "Mark Served",
-  served: "Served", 
-  "no-show": "No Show"
+    waiting: "Call Student",
+    called: "Start Helping",
+    "in-progress": "Mark Served",
+    served: "Served",
+    "no-show": "No Show"
 };
 
 function formatTime(iso) {
@@ -134,16 +129,62 @@ function renderAll() {
 }
 
 /* Advance a ticket's status (demo only — resets on reload) */
-tableBody.addEventListener("click", event => {
-  const button = event.target.closest(".row-action");
-  if (!button || button.disabled) return;
+tableBody.addEventListener("click", async event => {
 
-  const ticketNumber = button.dataset.ticket;
-  const ticket = tickets.find(t => t.ticketNumber === ticketNumber);
-  if (!ticket) return;
+    const button = event.target.closest(".row-action");
 
-  ticket.status = NEXT_STATUS[ticket.status];
-  renderAll();
+    if (!button || button.disabled) return;
+
+    const ticketNumber = button.dataset.ticket;
+
+    const ticket = tickets.find(
+        t => t.ticketNumber === ticketNumber
+    );
+
+    if (!ticket) return;
+
+    button.disabled = true;
+
+    const csrfToken = document.querySelector(
+        '#csrfForm input[name="csrfmiddlewaretoken"]'
+    ).value;
+
+    try {
+        const response = await fetch(updateTicketUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify({
+                ticket_id: ticket.id
+            })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(
+                result.error || "Unable to update ticket."
+            );
+        }
+
+        const statusMapping = {
+            "Waiting": "waiting",
+            "Called": "called",
+            "In service": "in-progress",
+            "Completed": "served",
+            "No show": "no-show"
+        };
+
+        ticket.status = statusMapping[result.new_status];
+
+        renderAll();
+
+    } catch (error) {
+        alert(error.message);
+        renderAll();
+    }
 });
 
 [statusFilter, queryFilter].forEach(el => el.addEventListener("change", renderTable));

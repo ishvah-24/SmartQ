@@ -108,7 +108,14 @@
 
 {{ tickets_data|json_script:"ticketData" }}
 
-<script src="{% static 'Smart_Q/js/dashboard.js' %}"></script>
+<form id="csrfForm" hidden>
+    {% csrf_token %}
+</form>
 
+<script>
+    const updateTicketUrl = "{% url 'update_ticket_status' %}";
+</script>
+
+<script src="{% static 'Smart_Q/js/dashboard.js' %}"></script>
 </body>
 </html>

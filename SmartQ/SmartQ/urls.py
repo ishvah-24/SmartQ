@@ -24,6 +24,7 @@ urlpatterns = [
     
     path('', views.index, name="index"), 
     path('dashboard/', views.dashboard, name="dashboard"), 
+    path('tickets/update-status/', views.update_ticket_status, name='update_ticket_status'),
     path("analytics/", views.analytics, name="analytics"),
     path('student-create/', views.student_create, name="student_create"),
     path('staff/create/', views.staff_create, name='staff_create'),

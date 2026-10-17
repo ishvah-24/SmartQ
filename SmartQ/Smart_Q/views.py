@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect
 from .models import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
+import json
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 # Create your views here.
 def index(request):
@@ -92,7 +95,7 @@ def dashboard(request):
 
     status_mapping = {
         'Waiting': 'waiting',
-        'Called': 'in-progress',
+        'Called': 'called',
         'In service': 'in-progress',
         'Completed': 'served',
         'No show': 'no-show',
@@ -102,23 +105,66 @@ def dashboard(request):
 
     for ticket in queue_tickets:
         tickets_data.append({
-            'ticketNumber': f'A-{ticket.ticket_id:03d}',
-            'name': (
-                f'{ticket.student.first_name} '
-                f'{ticket.student.last_name}'
-            ),
-            'studentNumber': str(ticket.student.student_number),
-            'phone': ticket.student.phone_number,
-            'query': ticket.category.category_name,
-            'status': status_mapping.get(
-                ticket.queue_status, 'waiting'
-            ),
-            'submittedAt': ticket.date_created.isoformat(),
-        })
+        'id': ticket.ticket_id,
+        'ticketNumber': f'A-{ticket.ticket_id:03d}',
+        'name': (
+            f'{ticket.student.first_name} '
+            f'{ticket.student.last_name}'
+        ),
+        'studentNumber': str(ticket.student.student_number),
+        'phone': ticket.student.phone_number,
+        'query': ticket.category.category_name,
+        'status': status_mapping.get(
+            ticket.queue_status, 'waiting'
+        ),
+        'submittedAt': ticket.date_created.isoformat(),
+    })
 
     return render(request, 'dashboard.html', {
         'tickets_data': tickets_data
     })
         
+@login_required(login_url='index')
+@require_POST
+def update_ticket_status(request):
 
-        
+    try:
+        data = json.loads(request.body)
+
+        ticket_id = data.get('ticket_id')
+
+        ticket = QueueTicket.objects.get(ticket_id=ticket_id)
+
+        status_transitions = {
+            'Waiting': 'Called',
+            'Called': 'In service',
+            'In service': 'Completed'
+        }
+
+        if ticket.queue_status not in status_transitions:
+            return JsonResponse({
+                'success': False,
+                'error': 'This ticket cannot be advanced.'
+            }, status=400)
+
+        ticket.queue_status = status_transitions[ticket.queue_status]
+
+        ticket.save(update_fields=['queue_status'])
+
+        return JsonResponse({
+            'success': True,
+            'ticket_id': ticket.ticket_id,
+            'new_status': ticket.queue_status
+        })
+
+    except (ValueError, TypeError):
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid request data.'
+        }, status=400)
+
+    except QueueTicket.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Ticket not found.'
+        }, status=404)
