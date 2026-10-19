@@ -74,7 +74,7 @@ def staff_create(request):
     return render(request, "index.html")
 
 def staff_signin(request):
-    if request.method == 'GET':
+    if request.method == 'POST':
         email = request.POST.get('loginEmail')
         password = request.POST.get('loginPassword')
 
