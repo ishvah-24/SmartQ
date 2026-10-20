@@ -28,17 +28,24 @@ def student_create(request):
         phone_number = request.POST.get('phone_number')
         query = request.POST.get('purpose')
         
-        student = Student.objects.create(
-            student_number = student_number, 
-            first_name = first_name, 
-            last_name = last_name, 
-            phone_number = phone_number
+        student, created = Student.objects.get_or_create(
+            student_number=student_number, 
+            defaults={
+            first_name : first_name, 
+            last_name : last_name, 
+            phone_number : phone_number
+            }
         )
         
-        category = ServiceCategory.objects.create(
-            category_name = query                             
-        )
-        
+        category = ServiceCategory.objects.filter(
+            category_name=query
+        ).first()
+
+        if category is None:
+            category = ServiceCategory.objects.create(
+                category_name=query
+            )
+            
         ticket = QueueTicket.objects.create(
             student=student, 
             category=category, 
