@@ -1,11 +1,13 @@
+import json
 from django.shortcuts import render, redirect
 from .models import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
-import json
+from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+from django.db import transaction
 from .notifications import send_ticket_notification
 
 # Create your views here.
@@ -19,8 +21,6 @@ def dashboard(request):
 def analytics(request):
     return render(request, "analytics.html")
 
-
-
 def student_create(request):
     print("VIEW WAS CALLED!!!!!!")
     
@@ -30,18 +30,25 @@ def student_create(request):
         last_name = request.POST.get('last_name')
         phone_number = request.POST.get('phone_number')
         query = request.POST.get('purpose')
-
-        student = Student.objects.create(
-            student_number = student_number, 
-            first_name = first_name, 
-            last_name = last_name, 
-            phone_number = phone_number
+        
+        student, created = Student.objects.get_or_create(
+            student_number=student_number, 
+            defaults={
+            first_name : first_name, 
+            last_name : last_name, 
+            phone_number : phone_number
+            }
         )
         
-        category = ServiceCategory.objects.create(
-            category_name = query                             
-        )
+        category = ServiceCategory.objects.filter(
+            category_name=query
+        ).first()
 
+        if category is None:
+            category = ServiceCategory.objects.create(
+                category_name=query
+            )
+            
         ticket = QueueTicket.objects.create(
             student=student, 
             category=category, 
@@ -51,7 +58,6 @@ def student_create(request):
 
         )
         send_ticket_notification(ticket, "Waiting")
-
         
         print(student, "\n", category, "\n", ticket)
         
@@ -60,30 +66,98 @@ def student_create(request):
 
     return render(request, "index.html")
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.db import transaction, IntegrityError
+from django.shortcuts import render
+
+from .models import Staff
+
+
 def staff_create(request):
+
     if request.method == 'POST':
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        staff_email = request.POST.get('signUpEmail')
 
-        staff = Staff.objects.create(
-            first_name=first_name,
-            last_name=last_name,
-            staff_email=staff_email
-        )
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        staff_email = request.POST.get('signUpEmail', '').strip().lower()
 
-        print(staff)
+        password = request.POST.get('signUpPassword', '')
+        confirm_password = request.POST.get('signUpPasswordConfirm', '')
 
-        return render(request, "index.html")
+        if not all([first_name, last_name, staff_email, password, confirm_password]):
+            return render(request, "index.html", {
+                "signup_error": "Please complete all fields."
+            })
+
+        # password validation
+        if password != confirm_password:
+            return render(request, "index.html", {
+                "signup_error": "Passwords do not match."
+            })
+
+        User = get_user_model()
+
+
+        if (
+            User.objects.filter(username__iexact=staff_email).exists()
+            or Staff.objects.filter(staff_email__iexact=staff_email).exists()
+        ):
+            return render(request, "index.html", {
+                "signup_error": "An account with this email already exists."
+            })
+
+        try:
+            validate_password(password)
+        except ValidationError as error:
+            return render(request, "index.html", {
+                "signup_error": " ".join(error.messages)
+            })
+
+        try:
+            with transaction.atomic():
+
+                user = User.objects.create_user(
+                    username=staff_email,
+                    email=staff_email,
+                    password=password,
+                    first_name=first_name,
+                    last_name=last_name,
+                    is_staff=False,
+                    is_superuser=False
+                )
+
+                staff = Staff.objects.create(
+                    user=user,
+                    first_name=first_name,
+                    last_name=last_name,
+                    staff_email=staff_email
+                )
+
+        except IntegrityError:
+            return render(request, "index.html", {
+                "signup_error": "Unable to create an account. This email may already be registered."
+            })
+
+        print("Staff account created:", staff.staff_email)
+
+        return render(request, "index.html", {
+            "signup_success": "Account created successfully. Please sign in."
+        })
 
     return render(request, "index.html")
+
 
 def staff_signin(request):
     if request.method == 'POST':
         email = request.POST.get('loginEmail')
         password = request.POST.get('loginPassword')
 
-        user = authenticate(request, username=email, password=password)
+        user = authenticate(request, 
+                            username=email, 
+                            password=password
+                            )
 
         if user is not None:
             login(request, user)
@@ -91,8 +165,7 @@ def staff_signin(request):
         else:
             print("Invalid email or password")
 
-    return render(request, "index.html")
-        
+    return redirect('dashboard')
 
 @login_required(login_url='index')
 def dashboard(request):
@@ -176,7 +249,7 @@ def update_ticket_status(request):
             ticket.save(update_fields=['queue_status', 'called_time'])
         else:
             ticket.save(update_fields=['queue_status'])
-        
+
         send_ticket_notification(ticket, ticket.queue_status)
 
         return JsonResponse({
