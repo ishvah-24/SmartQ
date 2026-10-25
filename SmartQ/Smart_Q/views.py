@@ -6,6 +6,7 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+from .notifications import send_ticket_notification
 
 # Create your views here.
 def index(request):
@@ -18,6 +19,8 @@ def dashboard(request):
 def analytics(request):
     return render(request, "analytics.html")
 
+
+
 def student_create(request):
     print("VIEW WAS CALLED!!!!!!")
     
@@ -27,7 +30,7 @@ def student_create(request):
         last_name = request.POST.get('last_name')
         phone_number = request.POST.get('phone_number')
         query = request.POST.get('purpose')
-        
+
         student = Student.objects.create(
             student_number = student_number, 
             first_name = first_name, 
@@ -38,7 +41,7 @@ def student_create(request):
         category = ServiceCategory.objects.create(
             category_name = query                             
         )
-        
+
         ticket = QueueTicket.objects.create(
             student=student, 
             category=category, 
@@ -47,6 +50,8 @@ def student_create(request):
             joined_time=timezone.now()
 
         )
+        send_ticket_notification(ticket, "Waiting")
+
         
         print(student, "\n", category, "\n", ticket)
         
@@ -171,7 +176,8 @@ def update_ticket_status(request):
             ticket.save(update_fields=['queue_status', 'called_time'])
         else:
             ticket.save(update_fields=['queue_status'])
-
+        
+        send_ticket_notification(ticket, ticket.queue_status)
 
         return JsonResponse({
             'success': True,
