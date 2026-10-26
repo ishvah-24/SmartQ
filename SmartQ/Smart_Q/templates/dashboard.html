@@ -21,17 +21,20 @@
       </div>
 
       <nav class="staff-nav">
-        <a href="dashboard.html" class="staff-nav-link active">
-          <span class="nav-dot"></span> Dashboard
+        <a href="{% url 'dashboard' %}" class="staff-nav-link active">
+            <span class="nav-dot"></span> Dashboard
         </a>
-        <a href="analytics.html" class="staff-nav-link">
+          <a href="{% url 'analytics' %}" class="staff-nav-link">
           <span class="nav-dot"></span> Analytics
         </a>
       </nav>
+      <form method="POST" action={% url 'staff_logout' %}>
+        {% csrf_token %}
 
-      <button class="signout-btn" id="signOutBtn">
-        Sign Out <span>⏻</span>
-      </button>
+        <button type="submit "class="signout-btn" id="signOutBtn">
+          Sign Out <span>⏻</span>
+        </button>
+      </form>
     </aside>
 
     <!-- Main content -->

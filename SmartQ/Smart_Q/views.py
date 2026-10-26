@@ -3,13 +3,16 @@ from django.shortcuts import render, redirect
 from .models import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
+from django.contrib.auth import logout
 from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.utils import timezone
-from django.db import transaction
+from django.db import transaction, IntegrityError
+from django.core.exceptions import ValidationError
 
-# Create your views here.
 def index(request):
     return render(request, "index.html")
 
@@ -64,13 +67,6 @@ def student_create(request):
 
     return render(request, "index.html")
 
-from django.contrib.auth import get_user_model
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
-from django.db import transaction, IntegrityError
-from django.shortcuts import render
-
-from .models import Staff
 
 
 def staff_create(request):
@@ -164,6 +160,12 @@ def staff_signin(request):
             print("Invalid email or password")
 
     return redirect('dashboard')
+
+@login_required(login_url='index')
+@require_POST
+def staff_logout(request):
+    logout(request)
+    return redirect('index')
 
 @login_required(login_url='index')
 def dashboard(request):
