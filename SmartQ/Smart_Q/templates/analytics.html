@@ -29,9 +29,13 @@
         </a>
       </nav>
 
-      <button class="signout-btn" id="signOutBtn">
-        Sign Out <span>⏻</span>
-      </button>
+      <form method="POST" action={% url 'staff_logout' %}>
+        {% csrf_token %}
+
+        <button type="submit "class="signout-btn" id="signOutBtn">
+          Sign Out <span>⏻</span>
+        </button>
+      </form>
     </aside>
 
     <!-- Main content -->
