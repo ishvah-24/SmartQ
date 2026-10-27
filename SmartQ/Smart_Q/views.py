@@ -12,6 +12,7 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ValidationError
+from .notifications import send_ticket_notification
 
 def index(request):
     return render(request, "index.html")
@@ -59,6 +60,7 @@ def student_create(request):
             joined_time=timezone.now()
 
         )
+        send_ticket_notification(ticket, "Waiting")
         
         print(student, "\n", category, "\n", ticket)
         
@@ -250,7 +252,7 @@ def update_ticket_status(request):
         else:
             ticket.save(update_fields=['queue_status'])
 
-
+        send_ticket_notification(ticket, ticket.queue_status)
         return JsonResponse({
             'success': True,
             'ticket_id': ticket.ticket_id,

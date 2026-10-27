@@ -120,10 +120,11 @@ AUTH_PASSWORD_VALIDATORS = [
  
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
- 
+
+# Changed from 'UTC' so times are shown in South African time 
 LANGUAGE_CODE = 'en-us'
  
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Johannesburg'
  
 USE_I18N = True
  
@@ -134,3 +135,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
  
 STATIC_URL = '/static/'
+# WhatsApp Cloud API credentials loaded from the .env file.
+# WA_TOKEN: permanent access token of the system user
+# WA_PHONE_ID: Phone number ID shown on the API Setup page in the Meta developer dashboard
+WA_TOKEN = config('WA_TOKEN', default='')
+WA_PHONE_ID = config('WA_PHONE_ID', default='')
