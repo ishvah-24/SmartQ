@@ -31,3 +31,10 @@ urlpatterns = [
     path('staff/signin/', views.staff_signin, name='staff_signin'),
     path('staff/logout/', views.staff_logout, name='staff_logout'),
 ]
+
+
+#error pages
+handler400 = 'Smart_Q.views.error_400'
+handler403 = 'Smart_Q.views.error_403'
+handler404 = 'Smart_Q.views.error_404'
+handler500 = 'Smart_Q.views.error_500'

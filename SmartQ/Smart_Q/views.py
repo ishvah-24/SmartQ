@@ -13,6 +13,10 @@ from django.utils import timezone
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ValidationError
 from .notifications import send_ticket_notification
+from django.core.exceptions import BadRequest
+from django.core.exceptions import PermissionDenied
+
+
 
 def index(request):
     return render(request, "index.html")
@@ -270,3 +274,19 @@ def update_ticket_status(request):
             'success': False,
             'error': 'Ticket not found.'
         }, status=404)
+        
+        
+def error_400(request, exception):
+    return render(request, "errors/400.html", status=400)
+
+def error_403(request, exception):
+    return render(request, "errors/403.html", status=403)
+
+def error_404(request, exception):
+    return render(request, "errors/404.html", status=404)
+
+def error_500(request):
+    return render(request, "errors/500.html", status=500)
+
+def csrf_failure(request, reason=""):
+    return render(request, "errors/403.html", status=403)

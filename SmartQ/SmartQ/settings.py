@@ -140,3 +140,7 @@ STATIC_URL = '/static/'
 # WA_PHONE_ID: Phone number ID shown on the API Setup page in the Meta developer dashboard
 WA_TOKEN = config('WA_TOKEN', default='')
 WA_PHONE_ID = config('WA_PHONE_ID', default='')
+
+
+# Custom CSRF error page
+CSRF_FAILURE_VIEW = 'Smart_Q.views.csrf_failure'
