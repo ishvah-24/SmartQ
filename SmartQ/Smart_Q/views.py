@@ -40,9 +40,6 @@ def student_create(request):
             'first_name' : first_name, 
             'last_name' : last_name, 
             'phone_number' : phone_number
-                'first_name': first_name,
-                'last_name': last_name,
-                'phone_number': phone_number
             }
         )
         
