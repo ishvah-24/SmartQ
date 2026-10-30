@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.utils import timezone
 
 
 # Create your models here.
@@ -67,6 +68,7 @@ class QueueTicket(models.Model):
     date_created = models.DateField(auto_now_add=True)
     joined_time = models.DateTimeField(null=True, blank=True)
     called_time = models.DateTimeField(null=True, blank=True)
+    status_changed_at = models.DateTimeField(default=timezone.now)
     
     queue_status = models.CharField(max_length=50, 
                                     choices=QUEUE_STATUS, 

@@ -1,9 +1,11 @@
-/*
-  dashboard.js
-  Concept-stage dashboard. Reads from the in-memory dummyTickets array
-  (dummy-data.js). No backend, no persistence — refreshing the page
-  resets any status changes made here.
-*/
+/**
+ * SmartQ Reception Dashboard
+ *
+ * Loads ticket data from the Django backend.
+ * Displays queue statistics and ticket information.
+ * Supports ticket filtering and status updates.
+ * Tracks time spent in each status, updating every 10 seconds.
+ */
 
 let tickets = JSON.parse(
     document.getElementById("ticketData").textContent
@@ -33,15 +35,38 @@ const ACTION_LABELS = {
 };
 
 function formatTime(iso) {
-  if(!iso) return "-";
+    if (!iso) return "-";
 
-  const pats = iso.split("-");
+    const parts = iso.split("-");
 
-  if(parseInt.length === 3){
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
 
     return iso;
-  }
+}
+
+
+function getTimeInStatus(timestamp) {
+    if (!timestamp) return "—";
+
+    const changedAt = new Date(timestamp).getTime();
+
+    if (Number.isNaN(changedAt)) return "—";
+
+    const elapsedMinutes = Math.max(
+        0,
+        Math.floor((Date.now() - changedAt) / 60000)
+    );
+
+    if (elapsedMinutes < 60) {
+        return `${elapsedMinutes} min`;
+    }
+
+    const hours = Math.floor(elapsedMinutes / 60);
+    const minutes = elapsedMinutes % 60;
+
+    return `${hours}h ${minutes}m`;
 }
 
 function renderStats() {
@@ -85,43 +110,74 @@ function getFilteredTickets() {
   });
 }
 
+
 function renderTable() {
-  const filtered = getFilteredTickets();
+    const filtered = getFilteredTickets();
 
-  if (filtered.length === 0) {
-    tableBody.innerHTML = "";
-    emptyState.hidden = false;
-    return;
-  }
+    // Display empty message if no tickets match the filters
+    if (filtered.length === 0) {
+        tableBody.innerHTML = "";
+        emptyState.hidden = false;
+        return;
+    }
 
-  emptyState.hidden = true;
+    emptyState.hidden = true;
 
-  tableBody.innerHTML = filtered.map(t => `
-    <tr>
-      <td class="cell-ticket">${t.ticketNumber}</td>
-      <td>${t.name}</td>
-      <td>${t.studentNumber}</td>
-      <td>${t.query}</td>
-      <td>
-        <span class="status-pill ${t.status}">
-          <span class="status-dot"></span> ${STATUS_LABELS[t.status]}
-        </span>
-      </td>
-      <td>${formatTime(t.submittedAt)}</td>
-      <td>
-        <button
-          class="row-action"
-          data-ticket="${t.ticketNumber}"
-          ${["served", "no-show"].includes(t.status) ? "disabled" : ""}
-        >
-  ${ACTION_LABELS[t.status]}
-</button>
-          ${ACTION_LABELS[t.status]}
-        </button>
-      </td>
-    </tr>
-  `).join("");
+    // Generate ticket rows
+    tableBody.innerHTML = filtered.map(t => `
+        <tr>
+            <!-- Ticket Number -->
+            <td class="cell-ticket">
+                ${t.ticketNumber}
+            </td>
+
+            <!-- Student Name -->
+            <td>
+                ${t.name}
+            </td>
+
+            <!-- Student Number -->
+            <td>
+                ${t.studentNumber}
+            </td>
+
+            <!-- Query Type -->
+            <td>
+                ${t.query}
+            </td>
+
+            <!-- Current Status -->
+            <td>
+                <span class="status-pill ${t.status}">
+                    <span class="status-dot"></span>
+                    ${STATUS_LABELS[t.status] || t.status}
+                </span>
+            </td>
+
+            <td class="time-in-status"
+                data-status-changed="${t.statusChangedAt || ''}">
+                ${getTimeInStatus(t.statusChangedAt)}
+            </td>
+
+            <!-- Date Submitted -->
+            <td>
+                ${formatTime(t.submittedAt)}
+            </td>
+
+            <!-- Status Action Button -->
+            <td>
+                <button
+                    class="row-action"
+                    data-ticket="${t.ticketNumber}"
+                    ${["served", "no-show"].includes(t.status)? "disabled": ""}
+                >
+                    ${ACTION_LABELS[t.status] || "Update"}
+                </button>
+            </td>
+        </tr>
+    `).join("");
 }
+
 
 function renderAll() {
   renderStats();
@@ -178,10 +234,11 @@ tableBody.addEventListener("click", async event => {
         };
 
         ticket.status = statusMapping[result.new_status];
+        ticket.statusChangedAt = result.status_changed_at;
 
         renderAll();
 
-    } catch (error) {
+      } catch (error) {
         alert(error.message);
         renderAll();
     }
@@ -190,9 +247,15 @@ tableBody.addEventListener("click", async event => {
 [statusFilter, queryFilter].forEach(el => el.addEventListener("change", renderTable));
 searchInput.addEventListener("input", renderTable);
 
-/* Sign out: concept only, no real session to clear */
-document.getElementById("signOutBtn").addEventListener("click", () => {
-  window.location.href = "index.html";
-});
-
 renderAll();
+
+
+function updateStatusTimers() {
+    document.querySelectorAll(".time-in-status").forEach(cell => {
+        cell.textContent = getTimeInStatus(
+            cell.dataset.statusChanged
+        );
+    });
+}
+
+setInterval(updateStatusTimers, 10000);

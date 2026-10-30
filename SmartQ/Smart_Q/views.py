@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.contrib.auth import get_user_model
-from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -21,9 +20,6 @@ from django.core.exceptions import PermissionDenied
 def index(request):
     return render(request, "index.html")
 
-@login_required(login_url='index')
-def dashboard(request):
-    return render(request, "dashboard.html")
 
 def analytics(request):
     return render(request, "analytics.html")
@@ -163,9 +159,11 @@ def staff_signin(request):
             login(request, user)
             return redirect('dashboard')
         else:
-            print("Invalid email or password")
+            return render(request, "index.html", {
+                "login_error": "Invalid email or password."
+            })
 
-    return redirect('dashboard')
+        return redirect('index')
 
 @login_required(login_url='index')
 @require_POST
@@ -217,6 +215,7 @@ def dashboard(request):
         ),
         'submittedAt': ticket.date_created.isoformat(),
         'waitingMinutes': waiting_minutes,
+        'statusChangedAt': ticket.status_changed_at.isoformat(),
     })
 
     return render(request, 'dashboard.html', {
@@ -248,19 +247,25 @@ def update_ticket_status(request):
 
         previous_status = ticket.queue_status
         
+        now = timezone.now()
+
         ticket.queue_status = status_transitions[previous_status]
-        
+        ticket.status_changed_at = now
+
+        update_fields = ['queue_status', 'status_changed_at']
+
         if previous_status == 'Waiting':
-            ticket.called_time=timezone.now()
-            ticket.save(update_fields=['queue_status', 'called_time'])
-        else:
-            ticket.save(update_fields=['queue_status'])
+            ticket.called_time = now
+            update_fields.append('called_time')
+
+        ticket.save(update_fields=update_fields)
 
         send_ticket_notification(ticket, ticket.queue_status)
         return JsonResponse({
             'success': True,
             'ticket_id': ticket.ticket_id,
-            'new_status': ticket.queue_status
+            'new_status': ticket.queue_status,
+            'status_changed_at': ticket.status_changed_at.isoformat()
         })
 
     except (ValueError, TypeError):
