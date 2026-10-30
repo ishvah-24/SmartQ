@@ -37,6 +37,9 @@ def student_create(request):
         student, created = Student.objects.get_or_create(
             student_number=student_number,
             defaults={
+            'first_name' : first_name, 
+            'last_name' : last_name, 
+            'phone_number' : phone_number
                 'first_name': first_name,
                 'last_name': last_name,
                 'phone_number': phone_number
