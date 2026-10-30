@@ -1,12 +1,53 @@
+
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>400 - Bad Request | SmartQ</title>
+
+    <link rel="stylesheet"
+          href="{% static 'Smart_Q/css/errors.css' %}">
 </head>
+
 <body>
-    <h1>400 - Bad Request</h1>
-    <p>The server could not process your request.</p>
-    <a href="/">Return Home</a>
+
+    <main class="error-card">
+
+        <!-- SmartQ Logo -->
+        <img
+            src="{% static 'Smart_Q/images/smartq-logo.jpg' %}"
+            alt="SmartQ Logo"
+            class="error-logo"
+        >
+
+        <!-- Error Code -->
+        <div class="error-code">400</div>
+
+        <!-- Error Heading -->
+        <h1 class="error-title">Bad Request</h1>
+
+        <!-- Error Description -->
+        <p class="error-description">
+            Oops! We couldn't process your request.
+            The information sent to the server may be
+            invalid, incomplete, or incorrectly formatted.
+            Please check your request and try again.
+        </p>
+
+        <!-- Return Home -->
+        <a href="/" class="error-button">
+            Return to Home
+        </a>
+
+        <!-- Footer -->
+        <div class="error-footer">
+            SmartQ &bull; Queue Management System
+        </div>
+
+    </main>
+
 </body>
 </html>

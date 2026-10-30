@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from Smart_Q import views
+from django.views.generic import TemplateView
 
 
 urlpatterns = [
@@ -30,11 +31,16 @@ urlpatterns = [
     path('staff/create/', views.staff_create, name='staff_create'),
     path('staff/signin/', views.staff_signin, name='staff_signin'),
     path('staff/logout/', views.staff_logout, name='staff_logout'),
+    
+    path('test-400/', TemplateView.as_view(template_name='errors/400.html')),
+    path('test-403/', TemplateView.as_view(template_name='errors/403.html')),
+    path('test-404/', TemplateView.as_view(template_name='errors/404.html')),
+    path('test-500/', TemplateView.as_view(template_name='errors/500.html')),
 ]
 
 
 #error pages
-handler400 = 'Smart_Q.views.error_400'
-handler403 = 'Smart_Q.views.error_403'
-handler404 = 'Smart_Q.views.error_404'
-handler500 = 'Smart_Q.views.error_500'
+
+handler403 = 'Smart_Q.views.permission_denied'
+handler404 = 'Smart_Q.views.page_not_found'
+handler500 = 'Smart_Q.views.server_error'

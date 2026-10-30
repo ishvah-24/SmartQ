@@ -1,12 +1,52 @@
+
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>404 - Page Not Found</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>404 - Page Not Found | SmartQ</title>
+
+    <link rel="stylesheet"
+          href="{% static 'Smart_Q/css/errors.css' %}">
 </head>
+
 <body>
-    <h1>404 - Page Not Found</h1>
-    <p>The page you're looking for doesn't exist.</p>
-    <a href="/">Return Home</a>
+
+    <main class="error-card">
+
+        <!-- SmartQ Logo -->
+        <img
+            src="{% static 'Smart_Q/images/smartq-logo.jpg' %}"
+            alt="SmartQ Logo"
+            class="error-logo"
+        >
+
+        <!-- Error Code -->
+        <div class="error-code">404</div>
+
+        <!-- Error Heading -->
+        <h1 class="error-title">Page Not Found</h1>
+
+        <!-- Error Description -->
+        <p class="error-description">
+            Oops! It looks like you've taken a wrong turn.
+            The page you're looking for doesn't exist,
+            has been moved, or is no longer available.
+        </p>
+
+        <!-- Return Home -->
+        <a href="/" class="error-button">
+            Return to Home
+        </a>
+
+        <!-- Footer -->
+        <div class="error-footer">
+            SmartQ &bull; Queue Management System
+        </div>
+
+    </main>
+
 </body>
 </html>

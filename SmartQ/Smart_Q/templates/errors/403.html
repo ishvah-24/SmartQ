@@ -1,12 +1,40 @@
+
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>403 - Access Denied | SmartQ</title>
+    <link rel="stylesheet" href="{% static 'Smart_Q/css/errors.css' %}">
 </head>
 <body>
-    <h1>403 - Access Denied</h1>
-    <p>Your session may have expired. Please refresh the page and try again.</p>
-    <a href="/">Return to SmartQ</a>
+    <main class="error-card">
+
+        <img
+            src="{% static 'Smart_Q/images/smartq-logo.jpg' %}"
+            alt="SmartQ Logo"
+            class="error-logo"
+        >
+
+        <div class="error-code">403</div>
+
+        <h1 class="error-title">Access Denied</h1>
+
+        <p class="error-description">
+            You don't have permission to access this page.
+            If you believe this is a mistake, please contact
+            your system administrator.
+        </p>
+
+        <a href="/" class="error-button">
+            Return to Home
+        </a>
+
+        <div class="error-footer">
+            SmartQ • Queue Management System
+        </div>
+
+    </main>
 </body>
 </html>
