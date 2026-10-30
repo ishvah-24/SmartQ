@@ -40,7 +40,6 @@ urlpatterns = [
 
 
 #error pages
-
 handler403 = 'Smart_Q.views.permission_denied'
 handler404 = 'Smart_Q.views.page_not_found'
 handler500 = 'Smart_Q.views.server_error'

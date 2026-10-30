@@ -3,14 +3,36 @@
  * SmartQ concept-stage analytics using sample ticket data.
  */
 
-document.addEventListener("DOMContentLoaded", function () {
-    const tickets = getTickets();
+document.addEventListener("DOMContentLoaded", function () {    
+    const dataElement = document.getElementById("analyticsData");
+
+    if(!dataElement){
+        console.error("Analytics data not found.");
+        return;
+    }
+
+    const rawTickets = JSON.parse(dataElement.textContent);
+
+    const tickets = rawTickets.map(ticket =>({
+        ...ticket,
+
+        query: ticket.query || 
+        ticket.category || 
+        "Other", 
+        submittedAt: ticket.submittedAt,
+
+        status: ({
+            "Waiting": "waiting",
+            "Called": "in-progress",
+            "In service": "in-progress",
+            "Completed": "served",
+            "No show": "no-show"
+        })[ticket.status] || ticket.status
+    }));
     
+     
     const QUERY_TYPES = [
-        "Access Card",
-        "Pay Fees",
-        "Registration",
-        "Other"
+        ...new Set(tickets.map(ticket=>ticket.query))
     ];
 
     const STATUSES = ["waiting", "in-progress", "served"];
@@ -534,3 +556,6 @@ function renderPerformanceKPIs(tickets) {
 
     console.log("SmartQ analytics rendered for", tickets.length, "sample tickets.");
 });
+
+
+console.log("SmartQ analytics rendered for", tickets.length, "database tickets.");

@@ -22,7 +22,53 @@ def index(request):
 
 
 def analytics(request):
-    return render(request, "analytics.html")
+    
+    tickets = (
+        QueueTicket.objects
+        .select_related("student", "category")
+        .order_by("ticket_id")
+        )
+    
+    analytics_data = []
+        
+    for ticket in tickets:
+        analytics_data.append({
+            "id": ticket.ticket_id, 
+            "status": ticket.queue_status, 
+            "category": ticket.category.category_name, 
+            "date": ticket.date_created.isoformat(),
+            
+            "submittedAt":(
+                ticket.joined_time.isoformat()
+                if ticket.joined_time else None
+            ),
+            
+            "calledAt": (
+                ticket.called_time.isoformat()
+                if ticket.called_time else None
+            ),
+             
+            "statusChangedAt": (
+                ticket.status_changed_at.isoformat()
+                if ticket.status_changed_at else None
+            ),
+            
+            "serviceStartedAt":(
+                ticket.called_time.isoformat()
+                if ticket.called_time else None
+            ), 
+            
+            "completedAt": (
+                ticket.status_changed_at.isoformat()
+                if ticket.queue_status == "Completed"
+                and ticket.status_changed_at else None
+            ),  
+        })
+        
+    return render(request, "analytics.html", {
+        "analytics_data": analytics_data,
+    })
+    
 
 def student_create(request):
     print("VIEW WAS CALLED!!!!!!")
@@ -72,9 +118,7 @@ def student_create(request):
 
 
 def staff_create(request):
-
     if request.method == 'POST':
-
         first_name = request.POST.get('first_name', '').strip()
         last_name = request.POST.get('last_name', '').strip()
         staff_email = request.POST.get('signUpEmail', '').strip().lower()
@@ -94,8 +138,6 @@ def staff_create(request):
             })
 
         User = get_user_model()
-
-
         if (
             User.objects.filter(username__iexact=staff_email).exists()
             or Staff.objects.filter(staff_email__iexact=staff_email).exists()
@@ -173,7 +215,6 @@ def staff_logout(request):
 
 @login_required(login_url='index')
 def dashboard(request):
-
     queue_tickets = QueueTicket.objects.select_related(
         'student', 'category'
     ).order_by('-ticket_id')
