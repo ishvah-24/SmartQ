@@ -29,13 +29,9 @@
         </a>
       </nav>
 
-      <form method="POST" action={% url 'staff_logout' %}>
-        {% csrf_token %}
-
-        <button type="submit "class="signout-btn" id="signOutBtn">
-          Sign Out <span>⏻</span>
-        </button>
-      </form>
+      <button class="signout-btn" id="signOutBtn">
+        Sign Out <span>⏻</span>
+      </button>
     </aside>
 
     <!-- Main content -->
@@ -49,35 +45,167 @@
         </div>
       </header>
 
-      <!-- Summary cards -->
-      <section class="stat-row" id="statRow">
-        <!-- filled by analytics.js -->
+      <!-- KPI cards -->
+       <section class="kpi-grid">
+        
+        <div class="kpi-card total-card">
+          <div class="kpi-top">
+            <span class="kpi-label">Total Tickets</span>
+            <span class="kpi-icon">📊</span>
+        </div>
+         <h2 id="totalTickets">0</h2>
+        <div class="kpi-bottom">
+            <span id="totalTicketsPercentage" class="kpi-percentage">0%</span>
+            <span id="totalTicketsDescription">All recorded tickets</span>
+        </div>
+        <div class="kpi-progress">
+            <div class="kpi-progress-fill" style="width: 100%"></div>
+          </div>
+        </div>
+        
+        <div class="kpi-card waiting-card">
+          <div class="kpi-top">
+            <span class="kpi-label">Waiting</span>
+            <span class="kpi-icon">⏳</span>
+          </div>
+          <h2 id="waitingTickets">0</h2>
+          <div class="kpi-bottom">
+            <span id="waitingTicketsPercentage" class="kpi-percentage">0%</span>
+            <span id="waitingTicketsDescription">Share of total tickets</span>
+          </div>
+          <div class="kpi-progress">
+            <div id="waitingProgress" class="kpi-progress-fill"></div>
+          </div>
+        </div>
+        
+        <div class="kpi-card progress-card">
+          <div class="kpi-top">
+            <span class="kpi-label">In Progress</span>
+            <span class="kpi-icon">🔄</span>
+          </div>
+          <h2 id="progressTickets">0</h2>
+          <div class="kpi-bottom">
+            <span id="progressTicketsPercentage" class="kpi-percentage">0%</span>
+            <span id="progressTicketsDescription">Share of total tickets</span>
+          </div>
+          <div class="kpi-progress">
+            <div id="progressProgress" class="kpi-progress-fill"></div>
+          </div>
+        </div>
+        
+        <div class="kpi-card served-card">
+          <div class="kpi-top">
+            <span class="kpi-label">Served</span>
+            <span class="kpi-icon">✓</span>
+          </div>
+          <h2 id="servedTickets">0</h2>
+          <div class="kpi-bottom">
+            <span id="servedTicketsPercentage" class="kpi-percentage">0%</span>
+            <span id="servedTicketsDescription">Share of total tickets</span>
+          </div>
+          <div class="kpi-progress">
+            <div id="servedProgress" class="kpi-progress-fill"></div>
+          </div>
+        </div>
+      
       </section>
+
+      
+<!-- Additional Performance KPI Cards -->
+<section class="kpi-grid extra-kpi-grid">
+
+    <div class="kpi-card">
+        <div class="kpi-top">
+            <span class="kpi-label">Tickets Today</span>
+            <span class="kpi-icon">📅</span>
+        </div>
+        <h2 id="ticketsToday">0</h2>
+        <div class="kpi-bottom">
+            <span id="ticketsTodayChange" class="kpi-percentage">N/A</span>
+            <span>vs yesterday</span>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-top">
+            <span class="kpi-label">Average Waiting Time</span>
+            <span class="kpi-icon">⏳</span>
+        </div>
+        <h2 id="averageWaitingTime">N/A</h2>
+        <div class="kpi-bottom">
+            <span class="kpi-percentage">Waiting</span>
+            <span>before service starts</span>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-top">
+            <span class="kpi-label">Average Service Time</span>
+            <span class="kpi-icon">🛠️</span>
+        </div>
+        <h2 id="averageServiceTime">N/A</h2>
+        <div class="kpi-bottom">
+            <span class="kpi-percentage">Service</span>
+            <span>time per completed ticket</span>
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-top">
+            <span class="kpi-label">Service Completion Rate</span>
+            <span class="kpi-icon">✅</span>
+        </div>
+        <h2 id="serviceCompletionRate">0%</h2>
+        <div class="kpi-bottom">
+            <span class="kpi-percentage">Completed</span>
+            <span id="completionTotal">0 of 0 tickets</span>
+        </div>
+    </div>
+
+</section>
+
+      
+      <!-- Charts -->
+       <section class="chart-grid">
+        <!-- Keep your chart content here, if any -->
+        </section>
+        
+        <section class="analytics-panel">
+
+          <h2>Queue Activity by Hour</h2>
+          <p>Number of tickets submitted during each hour.</p>
+          
+          <div class="line-chart-container">
+            <canvas id="queueActivityChart"></canvas>
+          </div>
+        </section>
 
       <!-- Charts -->
       <section class="chart-grid">
 
-        <div class="chart-card">
-          <h3>Queries by Type</h3>
-          <div class="bar-chart" id="queryChart"></div>
+        <div class="chart-container">
+          <h3>Tickets by Query Type</h3>
+          <canvas id="queryChart"></canvas>
         </div>
-
-        <div class="chart-card">
-          <h3>Tickets by Status</h3>
-          <div class="bar-chart" id="statusChart"></div>
+        
+        <div class="chart-container">
+          <h3>Ticket Status Distribution</h3>
+          <canvas id="statusChart"></canvas>
         </div>
 
         <div class="chart-card wide">
           <h3>Tickets Submitted by Hour</h3>
+
           <div class="bar-chart horizontal" id="hourChart"></div>
         </div>
 
       </section>
-
     </main>
   </div>
-
+  
   <script src="{% static 'Smart_Q/js/dummy-data.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="{% static 'Smart_Q/js/analytics.js' %}"></script>
+
 </body>
 </html>
