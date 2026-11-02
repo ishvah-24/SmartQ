@@ -117,7 +117,10 @@ def student_create(request):
 
 
 
+
 def staff_create(request):
+    print("STAFF CREATE CALLED")
+
     if request.method == 'POST':
         first_name = request.POST.get('first_name', '').strip()
         last_name = request.POST.get('last_name', '').strip()
@@ -126,36 +129,46 @@ def staff_create(request):
         password = request.POST.get('signUpPassword', '')
         confirm_password = request.POST.get('signUpPasswordConfirm', '')
 
+        print("Received fields:", list(request.POST.keys()))
+        print("Email:", staff_email)
+
         if not all([first_name, last_name, staff_email, password, confirm_password]):
+            print("FAILED: Missing fields")
             return render(request, "index.html", {
                 "signup_error": "Please complete all fields."
             })
 
-        # password validation
         if password != confirm_password:
+            print("FAILED: Passwords do not match")
             return render(request, "index.html", {
                 "signup_error": "Passwords do not match."
             })
 
         User = get_user_model()
+
         if (
             User.objects.filter(username__iexact=staff_email).exists()
             or Staff.objects.filter(staff_email__iexact=staff_email).exists()
         ):
+            print("FAILED: Email already registered")
             return render(request, "index.html", {
                 "signup_error": "An account with this email already exists."
             })
 
         try:
             validate_password(password)
+
         except ValidationError as error:
+            print("PASSWORD VALIDATION FAILED:", error.messages)
+
             return render(request, "index.html", {
-                "signup_error": " ".join(error.messages)
+                "signup_error": error.messages
             })
 
         try:
-            with transaction.atomic():
+            print("ATTEMPTING DATABASE INSERT")
 
+            with transaction.atomic():
                 user = User.objects.create_user(
                     username=staff_email,
                     email=staff_email,
@@ -166,6 +179,8 @@ def staff_create(request):
                     is_superuser=False
                 )
 
+                print("Django user created:", user.id)
+
                 staff = Staff.objects.create(
                     user=user,
                     first_name=first_name,
@@ -173,18 +188,22 @@ def staff_create(request):
                     staff_email=staff_email
                 )
 
-        except IntegrityError:
+                print("Staff profile created:", staff.staff_id)
+
+        except IntegrityError as error:
+            print("FAILED: Database integrity error:", repr(error))
             return render(request, "index.html", {
-                "signup_error": "Unable to create an account. This email may already be registered."
+                "signup_error": "Unable to create an account. Please check the server logs."
             })
 
-        print("Staff account created:", staff.staff_email)
+        print("SUCCESS: Staff account created:", staff.staff_email)
 
         return render(request, "index.html", {
             "signup_success": "Account created successfully. Please sign in."
         })
 
     return render(request, "index.html")
+
 
 
 def staff_signin(request):
