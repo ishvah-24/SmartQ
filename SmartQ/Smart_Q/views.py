@@ -303,8 +303,9 @@ def staff_logout(request):
     logout(request)
     return redirect('index')
 
-@login_required(login_url='index')
-def dashboard(request):
+
+def get_dashboard_tickets():
+
     queue_tickets = QueueTicket.objects.select_related(
         'student', 'category'
     ).order_by('-ticket_id')
@@ -315,45 +316,61 @@ def dashboard(request):
         'In service': 'in-progress',
         'Completed': 'served',
         'No show': 'no-show',
-        'Cancelled': 'cancelled',
+        'Cancelled': 'cancelled'
     }
 
     tickets_data = []
 
     for ticket in queue_tickets:
-        waiting_minutes=None
-        
+
+        waiting_minutes = None
+
         if ticket.joined_time and ticket.called_time:
             waiting_seconds = (
                 ticket.called_time - ticket.joined_time
             ).total_seconds()
-            
-            waiting_minutes = max(0, round(waiting_seconds / 60))
-            print(f"Ticket {ticket.ticket_id}: Waiting time = {waiting_minutes} minutes")
-            
-        
+
+            waiting_minutes = max(
+                0,
+                round(waiting_seconds / 60)
+            )
+
         tickets_data.append({
-        'id': ticket.ticket_id,
-        'ticketNumber': f'A-{ticket.ticket_id:03d}',
-        'name': (
-            f'{ticket.student.first_name} '
-            f'{ticket.student.last_name}'
-        ),
-        'studentNumber': str(ticket.student.student_number),
-        'phone': ticket.student.phone_number,
-        'query': ticket.category.category_name,
-        'status': status_mapping.get(
-            ticket.queue_status, 'unknown'
-        ),
-        
-        'submittedAt': ticket.date_created.isoformat(),
-        'waitingMinutes': waiting_minutes,
-        'statusChangedAt': ticket.status_changed_at.isoformat(),
-    })
+            'id': ticket.ticket_id,
+            'ticketNumber': f'A-{ticket.ticket_id:03d}',
+            'name': (
+                f'{ticket.student.first_name} '
+                f'{ticket.student.last_name}'
+            ),
+            'studentNumber': str(ticket.student.student_number),
+            'phone': ticket.student.phone_number,
+            'query': ticket.category.category_name,
+            'status': status_mapping.get(
+                ticket.queue_status, 'unknown'
+            ),
+            'submittedAt': ticket.date_created.isoformat(),
+            'waitingMinutes': waiting_minutes,
+            'statusChangedAt': ticket.status_changed_at.isoformat(),
+        })
+
+    return tickets_data
+
+
+@login_required(login_url='index')
+def dashboard(request):
 
     return render(request, 'dashboard.html', {
-        'tickets_data': tickets_data
+        'tickets_data': get_dashboard_tickets()
     })
+
+
+@login_required(login_url='index')
+def dashboard_ticket_data(request):
+
+    return JsonResponse({
+        'tickets': get_dashboard_tickets()
+    })
+
         
 
 @login_required(login_url='index')

@@ -1,10 +1,12 @@
+
 /**
  * SmartQ Reception Dashboard
  *
  * Loads ticket data from the Django backend.
  * Displays queue statistics and ticket information.
  * Supports ticket filtering and status updates.
- * Tracks time spent in each status, updating every 10 seconds.
+ * Automatically refreshes ticket data every 5 seconds.
+ * Updates time-in-status displays every 10 seconds.
  */
 
 let tickets = JSON.parse(
@@ -17,6 +19,9 @@ const emptyState = document.getElementById("emptyState");
 const statusFilter = document.getElementById("statusFilter");
 const queryFilter = document.getElementById("queryFilter");
 const searchInput = document.getElementById("searchInput");
+
+let dashboardRefreshInProgress = false;
+let ticketUpdateInProgress = false;
 
 const STATUS_LABELS = {
     waiting: "Waiting",
@@ -32,10 +37,22 @@ const ACTION_LABELS = {
     called: "Start Helping",
     "in-progress": "Mark Served",
     served: "Served",
-    "no-show": "No Show", 
-     cancelled: "Cancelled"
+    "no-show": "No Show",
+    cancelled: "Cancelled"
 };
 
+const STATUS_MAPPING = {
+    "Waiting": "waiting",
+    "Called": "called",
+    "In service": "in-progress",
+    "Completed": "served",
+    "No show": "no-show",
+    "Cancelled": "cancelled"
+};
+
+const FINAL_STATUSES = ["served", "no-show", "cancelled"];
+
+//formatting functions
 function formatTime(iso) {
     if (!iso) return "-";
 
@@ -47,7 +64,6 @@ function formatTime(iso) {
 
     return iso;
 }
-
 
 function getTimeInStatus(timestamp) {
     if (!timestamp) return "—";
@@ -71,52 +87,99 @@ function getTimeInStatus(timestamp) {
     return `${hours}h ${minutes}m`;
 }
 
+// Escape text before inserting it into HTML
+function escapeHTML(value) {
+    return String(value ?? "").replace(
+        /[&<>"']/g,
+        char => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[char]
+    );
+}
+
+// dashboard stats
 function renderStats() {
-  const waiting = tickets.filter(t => t.status === "waiting").length;
-  const inProgress = tickets.filter(t => t.status === "in-progress").length;
-  const served = tickets.filter(t => t.status === "served").length;
+    const waiting = tickets.filter(
+        t => t.status === "waiting"
+    ).length;
 
-  statRow.innerHTML = `
-    <div class="stat-card">
-      <div class="stat-label">Total Tickets Today</div>
-      <div class="stat-value">${tickets.length}</div>
-    </div>
-    <div class="stat-card accent">
-      <div class="stat-label">Waiting</div>
-      <div class="stat-value">${waiting}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">In Progress</div>
-      <div class="stat-value">${inProgress}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Served</div>
-      <div class="stat-value">${served}</div>
-    </div>
-  `;
+    const inProgress = tickets.filter(
+        t => t.status === "in-progress"
+    ).length;
+
+    const served = tickets.filter(
+        t => t.status === "served"
+    ).length;
+
+    statRow.innerHTML = `
+        <div class="stat-card">
+            <div class="stat-label">Total Tickets Today</div>
+            <div class="stat-value">${tickets.length}</div>
+        </div>
+
+        <div class="stat-card accent">
+            <div class="stat-label">Waiting</div>
+            <div class="stat-value">${waiting}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">In Progress</div>
+            <div class="stat-value">${inProgress}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Served</div>
+            <div class="stat-value">${served}</div>
+        </div>
+    `;
 }
 
+//ticket filtering
 function getFilteredTickets() {
-  const status = statusFilter.value;
-  const query = queryFilter.value;
-  const search = searchInput.value.trim().toLowerCase();
+    const status = statusFilter.value;
+    const query = queryFilter.value;
+    const search = searchInput.value.trim().toLowerCase();
 
-  return tickets.filter(t => {
-    if (status !== "all" && t.status !== status) return false;
-    if (query !== "all" && t.query !== query) return false;
-    if (search) {
-      const haystack = `${t.name} ${t.ticketNumber} ${t.studentNumber}`.toLowerCase();
-      if (!haystack.includes(search)) return false;
-    }
-    return true;
-  });
+    return tickets.filter(ticket => {
+
+        if (
+            status !== "all" &&
+            ticket.status !== status
+        ) {
+            return false;
+        }
+
+        if (
+            query !== "all" &&
+            ticket.query !== query
+        ) {
+            return false;
+        }
+
+        if (search) {
+            const haystack = `
+                ${ticket.name}
+                ${ticket.ticketNumber}
+                ${ticket.studentNumber}
+            `.toLowerCase();
+
+            if (!haystack.includes(search)) {
+                return false;
+            }
+        }
+
+        return true;
+    });
 }
 
-
+//ticket table
 function renderTable() {
     const filtered = getFilteredTickets();
 
-    // Display empty message if no tickets match the filters
     if (filtered.length === 0) {
         tableBody.innerHTML = "";
         emptyState.hidden = false;
@@ -125,73 +188,87 @@ function renderTable() {
 
     emptyState.hidden = true;
 
-    // Generate ticket rows
-    tableBody.innerHTML = filtered.map(t => `
-        <tr>
-            <!-- Ticket Number -->
-            <td class="cell-ticket">
-                ${t.ticketNumber}
-            </td>
+    tableBody.innerHTML = filtered.map(ticket => {
 
-            <!-- Student Name -->
-            <td>
-                ${t.name}
-            </td>
+        const isFinal = FINAL_STATUSES.includes(ticket.status);
 
-            <!-- Student Number -->
-            <td>
-                ${t.studentNumber}
-            </td>
+        return `
+            <tr>
+                <td class="cell-ticket">
+                    ${escapeHTML(ticket.ticketNumber)}
+                </td>
 
-            <!-- Query Type -->
-            <td>
-                ${t.query}
-            </td>
+                <td>
+                    ${escapeHTML(ticket.name)}
+                </td>
 
-            <!-- Current Status -->
-            <td>
-                <span class="status-pill ${t.status}">
-                    <span class="status-dot"></span>
-                    ${STATUS_LABELS[t.status] || t.status}
-                </span>
-            </td>
+                <td>
+                    ${escapeHTML(ticket.studentNumber)}
+                </td>
 
-            <td class="time-in-status"
-                data-status-changed="${t.statusChangedAt || ''}">
-                ${getTimeInStatus(t.statusChangedAt)}
-            </td>
+                <td>
+                    ${escapeHTML(ticket.query)}
+                </td>
 
-            <!-- Date Submitted -->
-            <td>
-                ${formatTime(t.submittedAt)}
-            </td>
+                <td>
+                    <span class="status-pill ${escapeHTML(ticket.status)}">
+                        <span class="status-dot"></span>
+                        ${escapeHTML(
+                            STATUS_LABELS[ticket.status] || ticket.status
+                        )}
+                    </span>
+                </td>
 
-            <!-- Status Action Button -->
-            <td>
-                <button
-                    class="row-action"
-                    data-ticket="${t.ticketNumber}"
-                    ${["served", "no-show", "cancelled"].includes(t.status) ? "disabled" : ""}
+                <td
+                    class="time-in-status"
+                    data-status-changed="${escapeHTML(
+                        ticket.statusChangedAt || ""
+                    )}"
                 >
-                    ${ACTION_LABELS[t.status] || "Update"}
-                </button>
-            </td>
-        </tr>
-    `).join("");
+                    ${getTimeInStatus(ticket.statusChangedAt)}
+                </td>
+
+                <td>
+                    ${formatTime(ticket.submittedAt)}
+                </td>
+
+                <td>
+                    <button
+                        class="row-action"
+                        data-ticket="${escapeHTML(ticket.ticketNumber)}"
+                        ${isFinal ? "disabled" : ""}
+                    >
+                        ${escapeHTML(
+                            ACTION_LABELS[ticket.status] || "Update"
+                        )}
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join("");
 }
 
-
+// RENDER DASHBOARD
 function renderAll() {
-  renderStats();
-  renderTable();
+    renderStats();
+    renderTable();
 }
 
-/* Advance a ticket's status (demo only — resets on reload) */
+// ==========================================
+// UPDATE TICKET STATUS
+// ==========================================
+
 tableBody.addEventListener("click", async event => {
 
     const button = event.target.closest(".row-action");
 
-    if (!button || button.disabled) return;
+    if (
+        !button ||
+        button.disabled ||
+        ticketUpdateInProgress
+    ) {
+        return;
+    }
 
     const ticketNumber = button.dataset.ticket;
 
@@ -199,15 +276,18 @@ tableBody.addEventListener("click", async event => {
         t => t.ticketNumber === ticketNumber
     );
 
-    if (!ticket) return;
+    if (!ticket || FINAL_STATUSES.includes(ticket.status)) {
+        return;
+    }
 
     button.disabled = true;
-
-    const csrfToken = document.querySelector(
-        '#csrfForm input[name="csrfmiddlewaretoken"]'
-    ).value;
+    ticketUpdateInProgress = true;
 
     try {
+        const csrfToken = document.querySelector(
+            '#csrfForm input[name="csrfmiddlewaretoken"]'
+        ).value;
+
         const response = await fetch(updateTicketUrl, {
             method: "POST",
             headers: {
@@ -227,31 +307,75 @@ tableBody.addEventListener("click", async event => {
             );
         }
 
-        const statusMapping = {
-            "Waiting": "waiting",
-            "Called": "called",
-            "In service": "in-progress",
-            "Completed": "served",
-            "No show": "no-show",
-            "Cancelled": "cancelled"
-        };
-
-        ticket.status = statusMapping[result.new_status];
+        ticket.status = STATUS_MAPPING[result.new_status];
         ticket.statusChangedAt = result.status_changed_at;
 
         renderAll();
 
-      } catch (error) {
+    } catch (error) {
         alert(error.message);
-        renderAll();
+
+        // Reload the latest database state after a failed update
+        ticketUpdateInProgress = false;
+        await refreshDashboard();
+
+    } finally {
+        ticketUpdateInProgress = false;
     }
 });
 
-[statusFilter, queryFilter].forEach(el => el.addEventListener("change", renderTable));
+//filter event listeners
+[statusFilter, queryFilter].forEach(element => {
+    element.addEventListener("change", renderTable);
+});
+
 searchInput.addEventListener("input", renderTable);
 
-renderAll();
+//dashboard refresh
+async function refreshDashboard() {
 
+    // Prevent overlapping requests
+    if (
+        dashboardRefreshInProgress ||
+        ticketUpdateInProgress
+    ) {
+        return;
+    }
+
+    dashboardRefreshInProgress = true;
+
+    try {
+        const response = await fetch(dashboardTicketsUrl, {
+            method: "GET",
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to refresh dashboard.");
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data.tickets)) {
+            throw new Error("Invalid ticket data received.");
+        }
+
+        //do not overwrite data while a staff update is running
+        if (!ticketUpdateInProgress) {
+            tickets = data.tickets;
+            renderAll();
+        }
+
+    } catch (error) {
+        console.error(
+            "Dashboard refresh failed:",
+            error
+        );
+
+    } finally {
+        dashboardRefreshInProgress = false;
+    }
+}
 
 function updateStatusTimers() {
     document.querySelectorAll(".time-in-status").forEach(cell => {
@@ -261,4 +385,9 @@ function updateStatusTimers() {
     });
 }
 
+//Display initial ticket data
+renderAll();
+
 setInterval(updateStatusTimers, 10000);
+
+setInterval(refreshDashboard, 5000);
