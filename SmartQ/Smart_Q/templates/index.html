@@ -321,20 +321,20 @@
       {% if ticket and ticket.queue_status == "Waiting" %}
         <form method="POST"
           action="{% url 'student_cancel_ticket' ticket.ticket_id %}"
-          onsubmit="return confirm('Are you sure you want to cancel your ticket?');">
+          onsubmit="return confirm('Are you sure you want to cancel your ticket?'); ">
 
         {% csrf_token %}
 
-        <button type="submit" class="cancel-ticket-btn">
+        <button type="submit" class="cancel-ticket-btn" >
             Cancel Ticket
         </button>
         </form>
         {% endif %}
 
       
-		  <button class="primary-btn ticket-button" onclick="document.getElementById('studentForm').reset(); showScreen('studentScreen')">
+		  <!--<button class="primary-btn ticket-button" onclick="document.getElementById('studentForm').reset(); showScreen('studentScreen')">
 			Return to Queue <span>↻</span>
-		  </button>
+		  </button> -->
 		</section>
 
       <!-- DEMO NAVIGATION -->
