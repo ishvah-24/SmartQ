@@ -307,6 +307,25 @@ button, input, select { font: inherit; }
   font-size: 13px;
 }
 
+.cancel-ticket-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    background: linear-gradient(to bottom, #ff5252, #dc2626);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.cancel-ticket-btn:hover {
+    background: linear-gradient(to bottom, #ef4444, #b91c1c);
+}
+
 /* Focus: visible for keyboard users */
 .primary-btn:focus-visible,
 .show-btn:focus-visible,
