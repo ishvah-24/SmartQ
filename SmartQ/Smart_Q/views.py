@@ -73,54 +73,103 @@ def analytics(request):
     })
     
 
+
+@require_POST
 def student_create(request):
-    print("VIEW WAS CALLED!!!!!!")
-    
-    if request.method == 'POST':
-        student_number = request.POST.get('student_number')
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        phone_number = request.POST.get('phone_number')
-        query = request.POST.get('purpose')
-        
+
+    student_number = request.POST.get("student_number")
+    first_name = request.POST.get("first_name")
+    last_name = request.POST.get("last_name")
+    phone_number = request.POST.get("phone_number")
+    query = request.POST.get("purpose")
+
+    # Validate required fields
+    if not all([
+        student_number,
+        first_name,
+        last_name,
+        phone_number,
+        query
+    ]):
+        return render(request, "index.html", {
+            "student_error": "Please complete all fields."
+        })
+
+    if not student_number.isdigit():
+        return render(request, "index.html", {
+            "student_error": "Invalid student number."
+        })
+
+    with transaction.atomic():
+
+        # Find or create the student
         student, created = Student.objects.get_or_create(
-            student_number=student_number,
+            student_number=int(student_number),
             defaults={
-            'first_name' : first_name, 
-            'last_name' : last_name, 
-            'phone_number' : phone_number
+                "first_name": first_name,
+                "last_name": last_name,
+                "phone_number": phone_number
             }
         )
-        
+
+        # Lock the student record to prevent simultaneous
+        # requests from creating duplicate active tickets
+        student = Student.objects.select_for_update().get(
+            pk=student.pk
+        )
+
+        # Check if the student already has an active ticket
+        existing_ticket = QueueTicket.objects.filter(
+            student=student,
+            queue_status__in=[
+                "Waiting",
+                "Called",
+                "In service"
+            ]
+        ).order_by("-ticket_id").first()
+
+        if existing_ticket:
+
+            request.session["student_ticket_id"] = (
+                existing_ticket.ticket_id
+            )
+
+            return render(request, "index.html", {
+                "ticket": existing_ticket
+            })
+
+        # Find an existing service category
         category = ServiceCategory.objects.filter(
             category_name=query
-        ).first()
+        ).order_by("category_id").first()
 
+        # Create category if none exists
         if category is None:
             category = ServiceCategory.objects.create(
                 category_name=query
             )
-            
+
+        # Create a new queue ticket
         ticket = QueueTicket.objects.create(
-            student=student, 
-            category=category, 
-            queue_status = "Waiting", 
-            priority_level = "Normal Priority", 
+            student=student,
+            category=category,
+            queue_status="Waiting",
+            priority_level="Normal Priority",
             joined_time=timezone.now()
+        )
 
-        )        
-
-        #Associate this ticket with the student's current browser session
+        # Store the ticket ID in the student's browser session
         request.session["student_ticket_id"] = ticket.ticket_id
-        
-        send_ticket_notification(ticket, "Waiting")
-        
-        print(student, "\n", category, "\n", ticket)
-        
-#       return render(request, "index.html")
-        return render(request, "index.html", {"ticket": ticket})
 
-    return render(request, "index.html")
+    # Send WhatsApp notification only for newly created tickets
+    send_ticket_notification(ticket, "Waiting")
+
+    print(f"Ticket A-{ticket.ticket_id:03d} created successfully")
+
+    return render(request, "index.html", {
+        "ticket": ticket
+    })
+
 
 
 @require_POST
