@@ -321,7 +321,7 @@
       {% if ticket and ticket.queue_status == "Waiting" %}
         <form method="POST"
           action="{% url 'student_cancel_ticket' ticket.ticket_id %}"
-          onsubmit="return confirm('Are you sure you want to cancel your ticket?'); ">
+          onsubmit="return confirm('Are you sure you want to cancel your ticket?');">
 
         {% csrf_token %}
 
