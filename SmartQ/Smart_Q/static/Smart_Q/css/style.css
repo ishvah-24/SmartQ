@@ -146,6 +146,17 @@ button, input, select { font: inherit; }
   justify-content: center;
 }
 
+.error-message {
+    color: #b91c1c;
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+
 .mobile-logo { display: none; }
 
 .screen { display: none; animation: appear .25s ease; }
