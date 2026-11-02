@@ -53,6 +53,7 @@ class QueueTicket(models.Model):
         ('In service', 'In service'),
         ('Completed', 'Completed'),
         ('No show', 'No show'),
+        ('Cancelled', 'Cancelled'),
     )
 
     PRIORITY_LEVEL = (

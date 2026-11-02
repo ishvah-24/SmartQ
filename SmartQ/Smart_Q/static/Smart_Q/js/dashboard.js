@@ -23,7 +23,8 @@ const STATUS_LABELS = {
     called: "Called",
     "in-progress": "In Progress",
     served: "Served",
-    "no-show": "No Show"
+    "no-show": "No Show",
+    cancelled: "Cancelled"
 };
 
 const ACTION_LABELS = {
@@ -31,7 +32,8 @@ const ACTION_LABELS = {
     called: "Start Helping",
     "in-progress": "Mark Served",
     served: "Served",
-    "no-show": "No Show"
+    "no-show": "No Show", 
+     cancelled: "Cancelled"
 };
 
 function formatTime(iso) {
@@ -169,7 +171,7 @@ function renderTable() {
                 <button
                     class="row-action"
                     data-ticket="${t.ticketNumber}"
-                    ${["served", "no-show"].includes(t.status)? "disabled": ""}
+                    ${["served", "no-show", "cancelled"].includes(t.status) ? "disabled" : ""}
                 >
                     ${ACTION_LABELS[t.status] || "Update"}
                 </button>
@@ -230,7 +232,8 @@ tableBody.addEventListener("click", async event => {
             "Called": "called",
             "In service": "in-progress",
             "Completed": "served",
-            "No show": "no-show"
+            "No show": "no-show",
+            "Cancelled": "cancelled"
         };
 
         ticket.status = statusMapping[result.new_status];

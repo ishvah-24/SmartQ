@@ -14,6 +14,9 @@ from django.core.exceptions import ValidationError
 from .notifications import send_ticket_notification
 from django.core.exceptions import BadRequest
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_POST
+from django.http import HttpResponseForbidden
 
 
 
@@ -105,7 +108,11 @@ def student_create(request):
             priority_level = "Normal Priority", 
             joined_time=timezone.now()
 
-        )
+        )        
+
+        #Associate this ticket with the student's current browser session
+        request.session["student_ticket_id"] = ticket.ticket_id
+        
         send_ticket_notification(ticket, "Waiting")
         
         print(student, "\n", category, "\n", ticket)
@@ -115,6 +122,47 @@ def student_create(request):
 
     return render(request, "index.html")
 
+
+@require_POST
+def student_cancel_ticket(request, ticket_id):
+
+    #check that the browser session owns the ticket
+    session_ticket_id = request.session.get("student_ticket_id")
+
+    if session_ticket_id != ticket_id:
+        return HttpResponseForbidden(
+            "You are not authorised to cancel this ticket."
+        )
+
+    #use a transaction to prevent conflicting ticket updates
+    with transaction.atomic():
+
+        ticket = get_object_or_404(
+            QueueTicket.objects.select_for_update(),
+            ticket_id=ticket_id
+        )
+
+        #Only waiting tickets can be cancelled
+        if ticket.queue_status != "Waiting":
+            return redirect("index")
+
+        # Update the ticket status
+        ticket.queue_status = "Cancelled"
+        ticket.status_changed_at = timezone.now()
+
+        # Save the changes to MySQL
+        ticket.save(
+            update_fields=[
+                "queue_status",
+                "status_changed_at"
+            ]
+        )
+
+    request.session.pop("student_ticket_id", None)
+
+    print(f"Ticket A-{ticket.ticket_id:03d} cancelled")
+
+    return redirect("index")
 
 
 
@@ -208,24 +256,47 @@ def staff_create(request):
 
 def staff_signin(request):
     if request.method == 'POST':
-        email = request.POST.get('loginEmail')
-        password = request.POST.get('loginPassword')
+        email = request.POST.get('loginEmail', '').strip().lower()
+        password = request.POST.get('loginPassword', '')
+
+        User = get_user_model()
+
+        if not email or not password:
+            return render(request, 'index.html', {
+                "login_error": "Please enter your email and password"
+            })
+
+        #check if an email exists
+        user_exists = User.objects.filter(
+            username__iexact= email
+        ).first()
+        
+        #checks if user exists
+        if not user_exists:
+            return render(request, "index.html", {
+                "login_error": "No account found with this email address."
+            })
+
+        #checks if account is still active 
+        if not user_exists.is_active:
+            return render(request, 'index.html', {
+                "login_error": "This account has already been disabled"
+            })
 
         user = authenticate(request, 
                             username=email, 
                             password=password
                             )
 
-        if user is not None:
-            login(request, user)
-            return redirect('dashboard')
-        else:
+        if user is None: 
             return render(request, "index.html", {
-                "login_error": "Invalid email or password."
+                "login_error": "Incorrect password. Please try again."
             })
-
-        return redirect('index')
-
+        #successful login
+        login(request, user)
+        return redirect('dashboard')    
+        
+        
 @login_required(login_url='index')
 @require_POST
 def staff_logout(request):
@@ -244,6 +315,7 @@ def dashboard(request):
         'In service': 'in-progress',
         'Completed': 'served',
         'No show': 'no-show',
+        'Cancelled': 'cancelled',
     }
 
     tickets_data = []
@@ -271,8 +343,9 @@ def dashboard(request):
         'phone': ticket.student.phone_number,
         'query': ticket.category.category_name,
         'status': status_mapping.get(
-            ticket.queue_status, 'waiting'
+            ticket.queue_status, 'unknown'
         ),
+        
         'submittedAt': ticket.date_created.isoformat(),
         'waitingMinutes': waiting_minutes,
         'statusChangedAt': ticket.status_changed_at.isoformat(),
@@ -282,16 +355,13 @@ def dashboard(request):
         'tickets_data': tickets_data
     })
         
+
 @login_required(login_url='index')
 @require_POST
 def update_ticket_status(request):
-
     try:
         data = json.loads(request.body)
-
         ticket_id = data.get('ticket_id')
-
-        ticket = QueueTicket.objects.get(ticket_id=ticket_id)
 
         status_transitions = {
             'Waiting': 'Called',
@@ -299,28 +369,35 @@ def update_ticket_status(request):
             'In service': 'Completed'
         }
 
-        if ticket.queue_status not in status_transitions:
-            return JsonResponse({
-                'success': False,
-                'error': 'This ticket cannot be advanced.'
-            }, status=400)
+        with transaction.atomic():
 
-        previous_status = ticket.queue_status
-        
-        now = timezone.now()
+            ticket = QueueTicket.objects.select_for_update().get(
+                ticket_id=ticket_id
+            )
 
-        ticket.queue_status = status_transitions[previous_status]
-        ticket.status_changed_at = now
+            if ticket.queue_status not in status_transitions:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'This ticket cannot be advanced.'
+                }, status=400)
 
-        update_fields = ['queue_status', 'status_changed_at']
+            previous_status = ticket.queue_status
+            now = timezone.now()
 
-        if previous_status == 'Waiting':
-            ticket.called_time = now
-            update_fields.append('called_time')
+            ticket.queue_status = status_transitions[previous_status]
+            ticket.status_changed_at = now
 
-        ticket.save(update_fields=update_fields)
+            update_fields = ['queue_status', 'status_changed_at']
 
+            if previous_status == 'Waiting':
+                ticket.called_time = now
+                update_fields.append('called_time')
+
+            ticket.save(update_fields=update_fields)
+
+        # Send notification after the database transaction commits
         send_ticket_notification(ticket, ticket.queue_status)
+
         return JsonResponse({
             'success': True,
             'ticket_id': ticket.ticket_id,
@@ -328,7 +405,7 @@ def update_ticket_status(request):
             'status_changed_at': ticket.status_changed_at.isoformat()
         })
 
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, json.JSONDecodeError):
         return JsonResponse({
             'success': False,
             'error': 'Invalid request data.'
@@ -339,6 +416,7 @@ def update_ticket_status(request):
             'success': False,
             'error': 'Ticket not found.'
         }, status=404)
+
         
         
         

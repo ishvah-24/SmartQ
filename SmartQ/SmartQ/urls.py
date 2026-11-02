@@ -31,6 +31,7 @@ urlpatterns = [
     path('staff/create/', views.staff_create, name='staff_create'),
     path('staff/signin/', views.staff_signin, name='staff_signin'),
     path('staff/logout/', views.staff_logout, name='staff_logout'),
+    path("student/cancel/<int:ticket_id>/", views.student_cancel_ticket, name="student_cancel_ticket"),
     
     path('test-400/', TemplateView.as_view(template_name='errors/400.html')),
     path('test-403/', TemplateView.as_view(template_name='errors/403.html')),
