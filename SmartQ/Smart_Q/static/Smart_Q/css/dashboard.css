@@ -1,30 +1,74 @@
-/* dashboard.css — staff dashboard shell, built on top of style.css tokens */
+/* dashboard.css — staff dashboard shell, "Liquid Glass" treatment.
+   Built on top of style.css tokens. Class names are unchanged, so
+   dashboard.js keeps working without edits. */
 
+:root {
+  --g-ink: #0b1b33;
+  --g-ink-2: #33425c;
+  --g-link: #0050b3;
+  --g-ok: #11672b;
+  --g-warn: #8f4000;
+  --g-fill: linear-gradient(135deg, rgba(255,255,255,.64), rgba(255,255,255,.38));
+  --g-edge: rgba(255,255,255,.72);
+  --g-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,.9),
+    inset 0 -1px 0 rgba(255,255,255,.25),
+    0 10px 30px rgba(31,60,120,.14),
+    0 2px 6px rgba(31,60,120,.08);
+}
+
+/* Shared glass surface */
+.staff-sidebar,
+.stat-card,
+.table-card,
+.filter-group select,
+.filter-group input {
+  background: var(--g-fill);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid var(--g-edge);
+  box-shadow: var(--g-shadow);
+}
+
+/* Backdrop: glass needs colour behind it */
 .staff-body {
-  background: var(--page);
+  color: var(--g-ink);
+  background:
+    radial-gradient(60% 50% at 12% 8%,  #7fb4ff 0, transparent 70%),
+    radial-gradient(50% 45% at 88% 12%, #c9a6ff 0, transparent 70%),
+    radial-gradient(55% 50% at 80% 95%, #ffb3cf 0, transparent 70%),
+    radial-gradient(45% 45% at 15% 90%, #7fe3d3 0, transparent 70%),
+    #dce6f7;
+  background-attachment: fixed;
 }
 
 .staff-shell {
   display: grid;
   grid-template-columns: 240px 1fr;
+  gap: 20px;
+  align-items: start;
   min-height: 100vh;
+  padding: 16px;
 }
 
-/* SIDEBAR */
+/* SIDEBAR — floating glass panel */
 
 .staff-sidebar {
+  position: sticky;
+  top: 16px;
   display: flex;
   flex-direction: column;
-  padding: 28px 20px;
-  background: linear-gradient(180deg, var(--navy) 0%, var(--navy-light) 100%);
+  height: calc(100vh - 32px);
+  padding: 22px 14px;
+  border-radius: 32px;
 }
 
 .staff-brand {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 34px;
-  padding: 0 6px;
+  margin-bottom: 28px;
+  padding: 0 8px;
 }
 
 .staff-logo {
@@ -32,12 +76,13 @@
   height: 34px;
   object-fit: cover;
   border-radius: 50%;
-  border: 2px solid rgba(255,255,255,.85);
+  border: 2px solid #fff;
+  box-shadow: 0 4px 10px rgba(10,79,191,.3);
 }
 
 .staff-brand span {
-  color: white;
-  font-size: 17px;
+  color: var(--g-ink);
+  font-size: 18px;
   font-weight: 800;
   letter-spacing: -.4px;
 }
@@ -45,39 +90,37 @@
 .staff-nav {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .staff-nav-link {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 11px 14px;
-  border-radius: 10px;
-  color: #b9cbe0;
-  font-size: 13px;
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--g-ink);
+  font-size: 14px;
   font-weight: 600;
   text-decoration: none;
-  transition: .15s ease;
+  transition: background .2s ease, box-shadow .2s ease;
 }
 
 .staff-nav-link:hover {
-  background: rgba(255,255,255,.06);
-  color: white;
+  background: rgba(255,255,255,.45);
 }
 
 .staff-nav-link.active {
-  background: rgba(22, 136, 245, .18);
-  color: white;
+  background: rgba(255,255,255,.75);
+  border-color: rgba(255,255,255,.95);
+  color: var(--g-link);
+  box-shadow: inset 0 1.5px 0 #fff, 0 4px 12px rgba(31,60,120,.14);
 }
 
-.nav-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: .7;
-}
+.nav-dot { display: none; } /* replaced by .nav-ico */
+.nav-ico { flex: none; }
 
 .signout-btn {
   margin-top: auto;
@@ -85,38 +128,47 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 42px;
-  border: 1px solid rgba(255,255,255,.16);
-  border-radius: 10px;
-  background: transparent;
-  color: #dfe9f5;
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid rgba(255,255,255,.8);
+  border-radius: 999px;
+  background: rgba(255,255,255,.4);
+  color: var(--g-ink);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
-  transition: .15s ease;
+  transition: background .2s ease;
 }
 
 .signout-btn:hover {
-  background: rgba(255,255,255,.08);
+  background: rgba(255,255,255,.75);
 }
 
 /* MAIN */
 
 .staff-main {
-  padding: 34px clamp(24px, 4vw, 48px) 48px;
+  min-width: 0;
+  padding: 18px clamp(8px, 2vw, 24px) 32px;
+}
+
+.staff-header .eyebrow {
+  color: var(--g-link);
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .staff-header h1 {
-  margin: 6px 0 6px;
-  color: var(--navy);
-  font-size: 27px;
-  letter-spacing: -.7px;
+  margin: 4px 0 6px;
+  color: var(--g-ink);
+  font-size: 40px;
+  line-height: 1.1;
+  letter-spacing: -1px;
 }
 
 .staff-header p {
   margin: 0;
-  color: var(--muted);
-  font-size: 13.5px;
+  color: var(--g-ink-2);
+  font-size: 15px;
 }
 
 /* STAT CARDS */
@@ -129,38 +181,36 @@
 }
 
 .stat-card {
-  padding: 18px 20px;
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: 0 10px 24px rgba(7, 26, 51, .05);
+  padding: 18px 22px;
+  border-radius: 28px;
 }
 
 .stat-card .stat-label {
-  color: var(--muted);
-  font-size: 11.5px;
-  font-weight: 600;
+  color: var(--g-ink-2);
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .stat-card .stat-value {
   margin-top: 6px;
-  color: var(--navy);
-  font-size: 26px;
+  color: var(--g-ink);
+  font-size: 38px;
   font-weight: 800;
-  letter-spacing: -.6px;
+  line-height: 1;
+  letter-spacing: -1px;
 }
 
 .stat-card.accent .stat-value {
-  color: var(--blue);
+  color: var(--g-link);
 }
 
-/* FILTER BAR */
+/* FILTER BAR — capsule controls */
 
 .filter-bar {
   display: flex;
   flex-wrap: wrap;
   gap: 14px;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .filter-group {
@@ -170,27 +220,33 @@
 }
 
 .filter-group label {
-  color: #33465e;
+  padding-left: 14px;
+  color: var(--g-ink-2);
   font-size: 12px;
   font-weight: 600;
 }
 
 .filter-group select,
 .filter-group input {
-  height: 42px;
-  padding: 0 13px;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  background: white;
-  color: var(--text);
+  height: 48px;
   min-width: 170px;
+  padding: 0 20px;
+  border-radius: 999px;
+  color: var(--g-ink);
+  font-size: 14px;
   outline: none;
 }
 
+.filter-group input::placeholder {
+  color: #45546e;
+}
+
 .filter-group select:focus,
-.filter-group input:focus {
-  border-color: var(--blue);
-  box-shadow: 0 0 0 4px rgba(22, 136, 245, .10);
+.filter-group input:focus,
+.filter-group select:focus-visible,
+.filter-group input:focus-visible {
+  border-color: #fff;
+  box-shadow: var(--g-shadow), 0 0 0 4px rgba(0,113,227,.35);
 }
 
 .search-group {
@@ -202,49 +258,61 @@
   width: 100%;
 }
 
-/* TABLE */
+/* TABLE — each row is its own glass lozenge */
 
 .table-card {
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 10px 24px rgba(7, 26, 51, .05);
-  overflow: hidden;
+  padding: 6px 0 10px;
+  border-radius: 32px;
+  overflow-x: auto;
 }
 
 .ticket-table {
   width: 100%;
-  border-collapse: collapse;
+  min-width: 900px;
+  border-collapse: separate;
+  border-spacing: 0 4px;
+  padding: 0 10px;
 }
 
 .ticket-table th {
-  padding: 13px 18px;
+  padding: 12px 16px;
   text-align: left;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .4px;
-  background: #f6faff;
-  border-bottom: 1px solid var(--border);
+  color: var(--g-ink-2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .3px;
+  background: transparent;
+  border: 0;
 }
 
 .ticket-table td {
-  padding: 13px 18px;
-  border-bottom: 1px solid #eef2f7;
-  color: var(--text);
-  font-size: 13px;
+  padding: 14px 16px;
+  border: 0;
+  border-top: 1px solid rgba(255,255,255,.55);
+  color: var(--g-ink);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  transition: background .15s ease;
 }
 
-.ticket-table tr:last-child td {
-  border-bottom: none;
-}
+.ticket-table td:first-child { border-radius: 22px 0 0 22px; padding-left: 20px; }
+.ticket-table td:last-child  { border-radius: 0 22px 22px 0; padding-right: 20px; }
 
 .ticket-table tr:hover td {
-  background: #fbfdff;
+  background: rgba(255,255,255,.4);
+}
+
+/* The ticket that needs action floats above the rest */
+.ticket-table tr:has(.status-pill.in-progress) td,
+.ticket-table tr:has(.status-pill.waiting) td {
+  background: rgba(255,255,255,.72);
+  border-top-color: #fff;
+  border-bottom: 1px solid rgba(255,255,255,.95);
+  box-shadow: 0 8px 22px rgba(10,80,190,.12);
 }
 
 .cell-ticket {
-  color: var(--blue);
+  color: var(--g-link);
   font-weight: 800;
 }
 
@@ -252,62 +320,86 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 11px;
+  padding: 5px 12px;
+  border: 1px solid rgba(255,255,255,.85);
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
 }
 
 .status-pill .status-dot {
   width: 7px;
   height: 7px;
+  border-radius: 50%;
 }
 
-.status-pill.waiting {
-  background: #fff1e0;
-  color: #b3660a;
-}
-.status-pill.waiting .status-dot {
-  background: #e08a1f;
-}
+.status-pill.waiting     { background: rgba(255,232,204,.9); color: var(--g-warn); }
+.status-pill.waiting .status-dot     { background: currentColor; }
+.status-pill.in-progress { background: rgba(214,230,255,.92); color: #1b3f9a; }
+.status-pill.in-progress .status-dot { background: currentColor; }
+.status-pill.served      { background: rgba(214,246,224,.88); color: var(--g-ok); }
+.status-pill.served .status-dot      { background: currentColor; }
 
-.status-pill.in-progress {
-  background: #e8f0ff;
-  color: #1b53c9;
-}
-.status-pill.in-progress .status-dot {
-  background: #3d6fe0;
-}
-
-.status-pill.served {
-  background: #e5f7ee;
-  color: #178a53;
-}
-.status-pill.served .status-dot {
-  background: #22a06b;
-}
-
+/* Actions: glossy blue glass for the primary one, quiet for the rest */
 .row-action {
-  padding: 7px 12px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: white;
-  color: var(--blue);
-  font-size: 11.5px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid rgba(255,255,255,.8);
+  border-radius: 999px;
+  background: rgba(255,255,255,.55);
+  color: var(--g-link);
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
+  transition: background .2s ease;
 }
 
 .row-action:hover {
-  background: var(--blue-soft);
+  background: rgba(255,255,255,.9);
+}
+
+.row-action:focus-visible,
+.signout-btn:focus-visible,
+.staff-nav-link:focus-visible {
+  outline: 3px solid rgba(0,113,227,.5);
+  outline-offset: 2px;
+}
+
+.ticket-table tr:has(.status-pill.in-progress) .row-action,
+.ticket-table tr:has(.status-pill.waiting) .row-action {
+  border-color: rgba(255,255,255,.55);
+  background: linear-gradient(180deg, #3f9bff, #0a63d6);
+  color: #fff;
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,.6), 0 8px 18px rgba(10,99,214,.4);
 }
 
 .empty-state {
   padding: 40px 18px;
   text-align: center;
-  color: var(--muted);
-  font-size: 13px;
+  color: var(--g-ink-2);
+  font-size: 14px;
+}
+
+/* ACCESSIBILITY FALLBACKS */
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .staff-sidebar, .stat-card, .table-card,
+  .filter-group select, .filter-group input { background: rgba(255,255,255,.88); }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .staff-sidebar, .stat-card, .table-card,
+  .filter-group select, .filter-group input {
+    background: #fff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
 }
 
 /* MOBILE */
@@ -315,21 +407,24 @@
 @media (max-width: 900px) {
   .staff-shell {
     grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 10px;
   }
 
   .staff-sidebar {
+    position: static;
     flex-direction: row;
     align-items: center;
-    padding: 16px 18px;
+    height: auto;
+    padding: 10px 14px;
+    border-radius: 999px;
   }
 
-  .staff-brand {
-    margin-bottom: 0;
-  }
+  .staff-brand { margin-bottom: 0; }
 
   .staff-nav {
     flex-direction: row;
-    margin-left: 18px;
+    margin-left: 12px;
   }
 
   .signout-btn {
@@ -339,12 +434,6 @@
     padding: 0 16px;
   }
 
-  .stat-row {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .ticket-table {
-    display: block;
-    overflow-x: auto;
-  }
+  .stat-row { grid-template-columns: repeat(2, 1fr); }
+  .staff-header h1 { font-size: 32px; }
 }
