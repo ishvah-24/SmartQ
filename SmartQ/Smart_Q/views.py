@@ -111,11 +111,17 @@ def student_create(request):
     })
 
 
+
 @require_POST
 def student_cancel_ticket(request, ticket_id):
     session_ticket_id = request.session.get("student_ticket_id")
 
-    if session_ticket_id != ticket_id:
+    if session_ticket_id is None:
+        return HttpResponseForbidden(
+            "Your session has expired or no ticket is associated with this session."
+        )
+
+    if str(session_ticket_id) != str(ticket_id):
         return HttpResponseForbidden(
             "You are not authorised to cancel this ticket."
         )
@@ -144,6 +150,7 @@ def student_cancel_ticket(request, ticket_id):
     print(f"Ticket A-{ticket.ticket_id:03d} cancelled")
 
     return redirect("student_queue")
+
 
 
 @require_POST

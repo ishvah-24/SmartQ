@@ -254,51 +254,46 @@
                         <div class="ticket-detail">
                             <span>Query</span>
 
-                            <strong id="ticketQueryType">
-                                {% if ticket %}
-                                    {{ ticket.category.category_name }}
-                                {% endif %}
-                            </strong>
+
+                                <strong id="ticketQueryType">
+                                    {% if ticket %}
+                                        {{ ticket.category.category_name }}
+                                    {% endif %}
+                                </strong>
+                            </div>
+
                         </div>
 
                     </div>
 
-                </div>
+                    <div class="info-card ticket-info">
+                        <div class="info-icon">i</div>
 
-                <div class="info-card ticket-info">
-                    <div class="info-icon">i</div>
+                        <div>
+                            <strong>Please keep your ticket number</strong>
 
-                    <div>
-                        <strong>Please keep your ticket number</strong>
-
-                        <p>
-                            Keep an eye on the reception display.
-                            You will be notified when it is your
-                            turn to receive assistance.
-                        </p>
+                            <p>
+                                Keep an eye on the reception display.
+                                You will be notified when it is your
+                                turn to receive assistance.
+                            </p>
+                        </div>
                     </div>
-                </div>
 
-                {% if ticket and ticket.queue_status == "Waiting" %}
+                        {% if ticket and ticket.queue_status == "Waiting" %}
+                <form
+                    method="POST"
+                    action="{% url 'student_cancel_ticket' ticket.ticket_id %}"
+                >
+                    {% csrf_token %}
 
-                    <form
-                        method="POST"
-                        action="{% url 'student_cancel_ticket' ticket.ticket_id %}"
-                        onsubmit="return confirm('Are you sure you want to cancel your ticket?');"
-                    >
+                    <button type="submit" class="cancel-ticket-btn">
+                        Cancel Ticket
+                    </button>
+                </form>
+            {% endif %}
 
-                        {% csrf_token %}
 
-                        <button
-                            type="submit"
-                            class="cancel-ticket-btn"
-                        >
-                            Cancel Ticket
-                        </button>
-
-                    </form>
-
-                {% endif %}
 
             </section>
 
