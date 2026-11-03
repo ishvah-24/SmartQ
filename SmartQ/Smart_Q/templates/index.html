@@ -206,23 +206,29 @@
             type="text"
             inputmode="numeric"
             placeholder="e.g. 402412389"
+			  pattern="[0-9]{9}"
+			  title="Student number must be 9 digits long"
             required
           >
 		  
 		  <label for="studentName">Name</label> 
 		  <input 
 		  id="studentName" 
-      name="first_name"
+      	name="first_name"
 		  type="text" 
 		  placeholder="e.g. Hanan" 
+			pattern = "[A-Za-z ]+"
+			title = "Name must not contain any numbers or special characters."
 		  required > 
 		  
 		  <label for="studentSurname">Surname</label> 
 		  <input 
 		  id="studentSurname" 
-      name="last_name"
+      		name="last_name"
 		  type="text" 
 		  placeholder="e.g. Ramanna" 
+			pattern = "[A-Za-z ]+"
+			title = "Surname must not contain any numbers or special characters."
 		  required >
 
           <label for="studentPhone">Phone Number</label>
@@ -231,6 +237,10 @@
             name="phone_number"
             type="tel"
             placeholder="e.g. 082 123 4567"
+			pattern="0[6-8][0-9]{8}"
+			  maxlength="10"
+			  inputmode="numeric"
+			  title="Enter a valid 10-digit South African cellphone number"
             required
           >
 
