@@ -259,7 +259,7 @@ def staff_create(request):
             print("PASSWORD VALIDATION FAILED:", error.messages)
 
             return render(request, "index.html", {
-                "signup_error": error.messages
+                "signup_error": "Please enter a password more than 8 characters and must contains a special character"
             })
 
         try:
