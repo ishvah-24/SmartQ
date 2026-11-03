@@ -309,22 +309,25 @@ button, input, select { font: inherit; }
 
 /* CHANGED both cancel styling*/
 .cancel-ticket-btn {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    margin-bottom: 10px;
     background: linear-gradient(to bottom, #ff5252, #dc2626);
     color: white;
-    border: none;
-    border-radius: 30px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
     box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+
+   min-height: 54px;
+  margin-top: 12px;
+  border: 1px solid rgba(255,255,255,.55);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #3f9bff, #0a63d6);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+
+  transition: background .18s ease, transform .18s ease;
 }
 
 .cancel-ticket-btn:hover {
     background: linear-gradient(to bottom, #ef4444, #b91c1c);
+   transform: translateY(-1px); /*added this statement*/
 }
 
 /* Focus: visible for keyboard users */
