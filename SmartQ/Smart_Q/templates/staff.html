@@ -271,6 +271,22 @@
 
             </section>
 
+            <div class="demo-nav">
+                <span>Staff Side:</span>
+            
+                <button type="button" onclick="showScreen('loginScreen')">
+                    Staff Login
+                </button>
+            
+                <button type="button" onclick="showScreen('signupScreen')">
+                    Staff Sign Up
+                </button>
+            
+                <a href="{% url 'student_queue' %}">
+                    Student Queue
+                </a>
+            </div>
+            
             <p
                 id="message"
                 class="message"
