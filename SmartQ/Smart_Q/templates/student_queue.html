@@ -1,0 +1,318 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartQ | Student Queue</title>
+    <link rel="stylesheet" href="{% static 'Smart_Q/css/style.css' %}">
+</head>
+
+<body>
+
+    <main class="app-shell">
+
+        <aside class="brand-panel">
+            <div class="brand-inner">
+
+                <img
+                    src="{% static 'Smart_Q/images/smartq-logo.jpg' %}"
+                    alt="SmartQ Student Queue Management System"
+                    class="main-logo"
+                >
+
+                <div class="brand-copy">
+                    <h1>
+                        Smart Queue.<br>
+                        <span>Better Experience.</span>
+                    </h1>
+
+                    <p>
+                        SmartQ helps Richfield reception staff manage
+                        student queries efficiently and keep students informed.
+                    </p>
+                </div>
+
+            </div>
+        </aside>
+
+        <section class="content-panel">
+
+            <div class="mobile-logo">
+                <img
+                    src="{% static 'Smart_Q/images/smartq-logo.jpg' %}"
+                    alt="SmartQ logo"
+                >
+            </div>
+
+            <section
+                class="screen {% if not ticket %}active{% endif %}"
+                id="studentScreen"
+            >
+
+                <div class="heading">
+                    <span class="eyebrow">STUDENT QUEUE</span>
+                    <h2>Join the queue</h2>
+                    <p>
+                        Enter your details and tell reception what
+                        you need assistance with.
+                    </p>
+                </div>
+
+                {% if student_error %}
+                    <div class="error-message" role="alert">
+                        <strong>Submission failed:</strong>
+                        <p>{{ student_error }}</p>
+                    </div>
+                {% endif %}
+
+                <form
+                    class="form"
+                    id="studentForm"
+                    method="POST"
+                    action="{% url 'student_create' %}"
+                >
+
+                    {% csrf_token %}
+
+                    <label for="studentNumber">Student Number</label>
+
+                    <input
+                        id="studentNumber"
+                        name="student_number"
+                        type="text"
+                        inputmode="numeric"
+                        placeholder="e.g. 402412389"
+                        maxlength="9"
+                        pattern="[0-9]{9}"
+                        title="Student number must be 9 digits long"
+                        required
+                    >
+
+                    <label for="studentName">Name</label>
+
+                    <input
+                        id="studentName"
+                        name="first_name"
+                        type="text"
+                        placeholder="e.g. Hanan"
+                        pattern="[A-Za-z ]+"
+                        title="Name must not contain any numbers or special characters."
+                        required
+                    >
+
+                    <label for="studentSurname">Surname</label>
+
+                    <input
+                        id="studentSurname"
+                        name="last_name"
+                        type="text"
+                        placeholder="e.g. Ramanna"
+                        pattern="[A-Za-z ]+"
+                        title="Surname must not contain any numbers or special characters."
+                        required
+                    >
+
+                    <label for="studentPhone">Phone Number</label>
+
+                    <input
+                        id="studentPhone"
+                        name="phone_number"
+                        type="tel"
+                        placeholder="e.g. 0821234567"
+                        pattern="0[6-8][0-9]{8}"
+                        maxlength="10"
+                        inputmode="numeric"
+                        title="Enter a valid 10-digit South African cellphone number"
+                        required
+                    >
+
+                    <label for="studentQuery">
+                        What do you need help with?
+                    </label>
+
+                    <select
+                        id="studentQuery"
+                        name="purpose"
+                        required
+                    >
+                        <option value="" selected disabled>
+                            Select your query
+                        </option>
+
+                        <option value="Registration">
+                            Registration Query
+                        </option>
+
+                        <option value="Examination Access Card">
+                            Access Card
+                        </option>
+
+                        <option value="Fees">
+                            Fees
+                        </option>
+
+                        <option value="Helpdesk Support">
+                            IT Related Issue
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+                    </select>
+
+                    <button class="primary-btn" type="submit">
+                        Submit Query <span>→</span>
+                    </button>
+
+                </form>
+
+                <div class="info-card">
+                    <div class="info-icon">i</div>
+
+                    <div>
+                        <strong>What happens next?</strong>
+
+                        <p>
+                            Your query is sent to reception.
+                            When it is your turn, SmartQ can send
+                            an automated notification asking you
+                            to come to reception.
+                        </p>
+                    </div>
+                </div>
+
+            </section>
+
+            <section
+                class="screen {% if ticket %}active{% endif %}"
+                id="ticketScreen"
+            >
+
+                <div class="ticket-heading">
+                    <span class="eyebrow">QUEUE CONFIRMATION</span>
+
+                    <h2>You're in the queue!</h2>
+
+                    <p>
+                        Your request has been successfully
+                        submitted to reception.
+                    </p>
+                </div>
+
+                <div class="ticket-card">
+
+                    <div class="ticket-label">
+                        YOUR TICKET NUMBER
+                    </div>
+
+                    <div
+                        class="ticket-number"
+                        id="ticketNumber"
+                    >
+                        {% if ticket %}
+                            A-{{ ticket.ticket_id|stringformat:"03d" }}
+                        {% endif %}
+                    </div>
+
+                    <div class="ticket-status">
+                        <span class="status-dot"></span>
+
+                        {% if ticket.queue_status == "Waiting" %}
+                            You are waiting for assistance
+                        {% elif ticket.queue_status == "Called" %}
+                            You have been called
+                        {% elif ticket.queue_status == "In service" %}
+                            You are being assisted
+                        {% elif ticket.queue_status == "Completed" %}
+                            Your query has been completed
+                        {% elif ticket.queue_status == "Cancelled" %}
+                            Your ticket has been cancelled
+                        {% else %}
+                            {{ ticket.queue_status }}
+                        {% endif %}
+                    </div>
+
+                    <div class="ticket-divider"></div>
+
+                    <div class="ticket-details">
+
+                        <div class="ticket-detail">
+                            <span>Student</span>
+
+                            <strong id="ticketStudentName">
+                                {% if ticket %}
+                                    {{ ticket.student.first_name }}
+                                    {{ ticket.student.last_name }}
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                        <div class="ticket-detail">
+                            <span>Query</span>
+
+                            <strong id="ticketQueryType">
+                                {% if ticket %}
+                                    {{ ticket.category.category_name }}
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="info-card ticket-info">
+                    <div class="info-icon">i</div>
+
+                    <div>
+                        <strong>Please keep your ticket number</strong>
+
+                        <p>
+                            Keep an eye on the reception display.
+                            You will be notified when it is your
+                            turn to receive assistance.
+                        </p>
+                    </div>
+                </div>
+
+                {% if ticket and ticket.queue_status == "Waiting" %}
+
+                    <form
+                        method="POST"
+                        action="{% url 'student_cancel_ticket' ticket.ticket_id %}"
+                        onsubmit="return confirm('Are you sure you want to cancel your ticket?');"
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="cancel-ticket-btn"
+                        >
+                            Cancel Ticket
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
+            </section>
+
+            <p
+                id="message"
+                class="message"
+                aria-live="polite"
+            ></p>
+
+        </section>
+
+    </main>
+
+    <script src="{% static 'Smart_Q/js/script.js' %}"></script>
+
+</body>
+</html>

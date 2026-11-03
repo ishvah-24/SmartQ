@@ -1,0 +1,287 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartQ | Staff Portal</title>
+    <link rel="stylesheet" href="{% static 'Smart_Q/css/style.css' %}">
+</head>
+
+<body>
+
+    <main class="app-shell">
+
+        <aside class="brand-panel">
+            <div class="brand-inner">
+
+                <img
+                    src="{% static 'Smart_Q/images/smartq-logo.jpg' %}"
+                    alt="SmartQ Student Queue Management System"
+                    class="main-logo"
+                >
+
+                <div class="brand-copy">
+                    <h1>
+                        Smart Queue.<br>
+                        <span>Better Experience.</span>
+                    </h1>
+
+                    <p>
+                        SmartQ helps Richfield reception staff manage
+                        student queries efficiently and keep students informed.
+                    </p>
+                </div>
+
+            </div>
+        </aside>
+
+        <section class="content-panel">
+
+            <div class="mobile-logo">
+                <img
+                    src="{% static 'Smart_Q/images/smartq-logo.jpg' %}"
+                    alt="SmartQ logo"
+                >
+            </div>
+
+            <section
+                class="screen {% if not signup_error and not signup_success %}active{% endif %}"
+                id="loginScreen"
+            >
+
+                <div class="heading">
+                    <span class="eyebrow">RECEPTION STAFF</span>
+                    <h2>Welcome back</h2>
+                    <p>Sign in to access the SmartQ reception system.</p>
+                </div>
+
+                {% if login_error %}
+                    <p class="error-message" role="alert">
+                        <strong>Sign in Failed</strong>
+                        {{ login_error }}
+                    </p>
+                {% endif %}
+
+                <form
+                    class="form"
+                    id="loginForm"
+                    method="POST"
+                    action="{% url 'staff_signin' %}"
+                >
+
+                    {% csrf_token %}
+
+                    <label for="loginEmail">Email Address</label>
+
+                    <input
+                        id="loginEmail"
+                        type="email"
+                        name="loginEmail"
+                        placeholder="reception@richfield.ac.za"
+                        required
+                    >
+
+                    <label for="loginPassword">Password</label>
+
+                    <div class="password-box">
+                        <input
+                            id="loginPassword"
+                            type="password"
+                            name="loginPassword"
+                            placeholder="Enter your password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="show-btn"
+                            data-target="loginPassword"
+                        >
+                            Show
+                        </button>
+                    </div>
+
+                    <div class="form-row">
+
+                        <label class="remember">
+                            <input type="checkbox">
+                            <span>Remember me</span>
+                        </label>
+
+                        <button
+                            type="button"
+                            class="small-link"
+                            onclick="showMessage('Please contact your system administrator to reset your password.')"
+                        >
+                            Forgot password?
+                        </button>
+
+                    </div>
+
+                    <button class="primary-btn" type="submit">
+                        Sign In <span>→</span>
+                    </button>
+
+                </form>
+
+                <p class="switch-text">
+                    New receptionist?
+
+                    <button
+                        type="button"
+                        class="link-button"
+                        onclick="showScreen('signupScreen')"
+                    >
+                        Create an account
+                    </button>
+                </p>
+
+            </section>
+
+            <section
+                class="screen {% if signup_error or signup_success %}active{% endif %}"
+                id="signupScreen"
+            >
+
+                <div class="heading">
+                    <span class="eyebrow">RECEPTION STAFF</span>
+                    <h2>Create staff account</h2>
+                    <p>Register a receptionist account for the SmartQ system.</p>
+                </div>
+
+                {% if signup_error %}
+                    <div class="error-message" role="alert">
+                        <strong>Registration failed:</strong>
+                        <p>{{ signup_error }}</p>
+                    </div>
+                {% endif %}
+
+                {% if signup_success %}
+                    <p class="success-message">
+                        {{ signup_success }}
+                    </p>
+                {% endif %}
+
+                <form
+                    class="form"
+                    id="signupForm"
+                    method="POST"
+                    action="{% url 'staff_create' %}"
+                >
+
+                    {% csrf_token %}
+
+                    <label for="first_name">First Name</label>
+
+                    <input
+                        id="first_name"
+                        name="first_name"
+                        type="text"
+                        placeholder="John"
+                        pattern="[A-Za-z ]+"
+                        title="Name must not contain any numbers or special characters."
+                        required
+                    >
+
+                    <label for="last_name">Last Name</label>
+
+                    <input
+                        id="last_name"
+                        name="last_name"
+                        type="text"
+                        placeholder="Doe"
+                        pattern="[A-Za-z ]+"
+                        title="Surname must not contain any numbers or special characters."
+                        required
+                    >
+
+                    <label for="signUpEmail">Email Address</label>
+
+                    <input
+                        id="signUpEmail"
+                        name="signUpEmail"
+                        type="email"
+                        placeholder="reception@richfield.ac.za"
+                        required
+                    >
+
+                    <label for="signUpPassword">Password</label>
+
+                    <div class="password-box">
+                        <input
+                            id="signUpPassword"
+                            type="password"
+                            name="signUpPassword"
+                            placeholder="Create a password"
+                            minlength="8"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="show-btn"
+                            data-target="signUpPassword"
+                        >
+                            Show
+                        </button>
+                    </div>
+
+                    <label for="confirmPassword">Confirm Password</label>
+
+                    <div class="password-box">
+                        <input
+                            id="confirmPassword"
+                            name="signUpPasswordConfirm"
+                            type="password"
+                            placeholder="Confirm your password"
+                            minlength="8"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="show-btn"
+                            data-target="confirmPassword"
+                        >
+                            Show
+                        </button>
+                    </div>
+
+                    <button class="primary-btn" type="submit">
+                        Create Staff Account <span>→</span>
+                    </button>
+
+                </form>
+
+                <p class="switch-text">
+                    Already have an account?
+
+                    <button
+                        type="button"
+                        class="link-button"
+                        onclick="showScreen('loginScreen')"
+                    >
+                        Sign in
+                    </button>
+                </p>
+
+            </section>
+
+            <p
+                id="message"
+                class="message"
+                aria-live="polite"
+            ></p>
+
+        </section>
+
+    </main>
+
+    <script src="{% static 'Smart_Q/js/script.js' %}"></script>
+
+</body>
+</html>

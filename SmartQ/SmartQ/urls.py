@@ -34,6 +34,15 @@ urlpatterns = [
     path("student/cancel/<int:ticket_id>/", views.student_cancel_ticket, name="student_cancel_ticket"),
     path('dashboard/tickets/', views.dashboard_ticket_data, name='dashboard_ticket_data'),
     
+    
+    path("", views.index, name="index"),
+    path("student-queue/", views.student_queue, name="student_queue"),
+    path("staff-signin/", views.staff_page, name="staff_page"),
+    path("staff-login/", views.staff_signin, name="staff_signin"),
+    path("staff-create/", views.staff_create, name="staff_create"),
+    path("student-create/", views.student_create, name="student_create"),
+    
+    
     path('test-400/', TemplateView.as_view(template_name='errors/400.html')),
     path('test-403/', TemplateView.as_view(template_name='errors/403.html')),
     path('test-404/', TemplateView.as_view(template_name='errors/404.html')),
