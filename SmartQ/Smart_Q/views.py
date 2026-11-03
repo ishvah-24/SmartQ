@@ -23,7 +23,7 @@ from django.http import HttpResponseForbidden
 def index(request):
     return render(request, "index.html")
 
-
+@login_required(login_url='index')
 def analytics(request):
     
     tickets = (
@@ -301,8 +301,6 @@ def staff_create(request):
 
     return render(request, "index.html")
 
-
-
 def staff_signin(request):
     if request.method == 'POST':
         email = request.POST.get('loginEmail', '').strip().lower()
@@ -343,7 +341,8 @@ def staff_signin(request):
             })
         #successful login
         login(request, user)
-        return redirect('dashboard')    
+        return redirect('dashboard')  
+
         
         
 @login_required(login_url='index')
@@ -404,7 +403,7 @@ def get_dashboard_tickets():
 
     return tickets_data
 
-
+@login_required(login_url="index")
 @login_required(login_url='index')
 def dashboard(request):
 
@@ -496,9 +495,6 @@ def page_not_found(request, exception):
 
 def server_error(request):
     return render(request, 'errors/500.html', status=500)
-
-def server_error(request):
-    return render(request, '500.html', status=500)
         
 def error_400(request, exception):
     return render(request, "errors/400.html", status=400)

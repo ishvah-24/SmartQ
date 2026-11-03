@@ -28,7 +28,7 @@
           <span class="nav-dot"></span> Analytics
         </a>
       </nav>
-      <form method="POST" action={% url 'staff_logout' %}>
+      <form method="POST" action="{% url 'staff_logout' %}">
         {% csrf_token %}
 
         <button type="submit "class="signout-btn" id="signOutBtn">
@@ -62,6 +62,7 @@
             <option value="waiting">Waiting</option>
             <option value="in-progress">In Progress</option>
             <option value="served">Served</option>
+            <option value="cancelled">Cancelled</option>
           </select>
         </div>
 
