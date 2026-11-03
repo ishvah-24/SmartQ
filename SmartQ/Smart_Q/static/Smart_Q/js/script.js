@@ -1,32 +1,47 @@
+
 const screens = ["loginScreen", "signupScreen", "studentScreen", "ticketScreen"];
 
 function showScreen(id) {
-  screens.forEach(screenId => {
-    document.getElementById(screenId).classList.toggle("active", screenId === id);
-  });
+    screens.forEach(screenId => {
+        const screen = document.getElementById(screenId);
 
-  clearMessage();
+        if (screen) {
+            screen.classList.toggle("active", screenId === id);
+        }
+    });
+
+    clearMessage();
 }
 
 function showMessage(text) {
-  const message = document.getElementById("message");
-  message.textContent = text;
+    const message = document.getElementById("message");
+
+    if (message) {
+        message.textContent = text;
+    }
 }
 
 function clearMessage() {
-  document.getElementById("message").textContent = "";
+    const message = document.getElementById("message");
+
+    if (message) {
+        message.textContent = "";
+    }
 }
 
-/* Show / hide passwords */
 document.querySelectorAll(".show-btn").forEach(button => {
-  button.addEventListener("click", () => {
-    const input = document.getElementById(button.dataset.target);
-    const isHidden = input.type === "password";
+    button.addEventListener("click", () => {
+        const input = document.getElementById(button.dataset.target);
 
-    input.type = isHidden ? "text" : "password";
-    button.textContent = isHidden ? "Hide" : "Show";
-  });
+        if (!input) return;
+
+        const isHidden = input.type === "password";
+
+        input.type = isHidden ? "text" : "password";
+        button.textContent = isHidden ? "Hide" : "Show";
+    });
 });
+
 
 /* Staff login demo */
 /*document.getElementById("loginForm").addEventListener("submit", event => {

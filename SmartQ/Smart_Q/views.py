@@ -505,3 +505,4 @@ def error_500(request):
 
 def csrf_failure(request, reason=""):
     return render(request, "errors/403.html", status=403)
+
